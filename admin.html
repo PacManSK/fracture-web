@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 
 <html lang="sk">
@@ -129,3 +130,70 @@ function action(index,act){
 </body>
 </html>
 
+=======
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - Fracture RP</title>
+<style>
+body {font-family: Arial, sans-serif; background:#0d0d0d; color:#fff; padding:20px;}
+button {padding:8px 12px; margin:0 5px; cursor:pointer;}
+.approve {background:green; color:#fff; border:none;}
+.reject {background:red; color:#fff; border:none;}
+</style>
+</head>
+<body>
+<h1>Admin Panel - Whitelist</h1>
+<div id="login">
+    <input type="password" id="adminPass" placeholder="Admin heslo">
+    <button onclick="login()">Prihlásiť</button>
+</div>
+<div id="panel" style="display:none;">
+    <h2>Žiadosti o Whitelist</h2>
+    <ul id="requests"></ul>
+</div>
+
+<script>
+let password = "";
+
+function login() {
+    password = document.getElementById('adminPass').value;
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    loadRequests();
+}
+
+function loadRequests() {
+    fetch('/api/whitelist')
+        .then(res => res.json())
+        .then(data => {
+            const ul = document.getElementById('requests');
+            ul.innerHTML = '';
+            if(data.length === 0) ul.innerHTML = '<li>Žiadne žiadosti</li>';
+            data.forEach((req, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${req.Meno}</strong> (${req.Vek} rokov) - ${req.Discord} <br>
+                                <button class="approve" onclick="action(${idx}, 'approve')">Schváliť</button>
+                                <button class="reject" onclick="action(${idx}, 'reject')">Odmietnuť</button>`;
+                ul.appendChild(li);
+            });
+        });
+}
+
+function action(index, act) {
+    fetch('/api/whitelist/action', {
+        method: 'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({index:index, action:act, password:password})
+    }).then(res => res.json())
+      .then(res => {
+          if(res.success) loadRequests();
+          else alert(res.error);
+      });
+}
+</script>
+</body>
+</html>
+>>>>>>> d95e89721b0d99f5c9cc02a3846aeaa68e4a3b09
