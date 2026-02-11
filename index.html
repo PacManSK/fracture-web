@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -8,128 +7,32 @@
 
 <style>
 * {margin:0; padding:0; box-sizing:border-box;}
-body {font-family: Arial, sans-serif; background:#0d0d0d; color:#fff;}
+body {font-family: Arial, sans-serif; background:#0d0d0d; color:#fff; line-height:1.6;}
 
-header {
-    position: relative;
-    background: linear-gradient(90deg, #1a1a1a, #111);
-    text-align: center;
-    padding: 30px 20px;
-}
-
-.logo {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 80px;
-}
-
-.header-text h1 {
-    font-size: 48px;
-    color: #ff4b5c;
-}
-
-.header-text p {
-    color:#ccc;
-}
+/* HEADER */
+header {position: relative; background: linear-gradient(90deg,#1a1a1a,#111); text-align:center; padding:30px 20px;}
+.logo {position:absolute; left:20px; top:50%; transform:translateY(-50%); width:80px;}
+.header-text h1 {font-size:48px;color:#ff4b5c;}
+.header-text p {color:#ccc;}
 
 /* NAV */
-nav {
-    position: relative;
-    background:#111;
-    padding:15px 0;
-    border-bottom:2px solid #222;
-}
-
-/* Discord úplne vľavo */
-.discord-btn {
-    position:absolute;
-    left:20px;
-    top:50%;
-    transform:translateY(-50%);
-    background:#5865F2;
-    color:#fff;
-    padding:8px 16px;
-    border-radius:5px;
-    text-decoration:none;
-    font-weight:bold;
-    transition:0.3s;
-}
-.discord-btn:hover {
-    background:#4752c4;
-}
-
-/* Ostatné menu vycentrované */
-.nav-center {
-    display:flex;
-    justify-content:center;
-    gap:25px;
-}
-
-nav a {
-    color:#fff;
-    text-decoration:none;
-    font-weight:bold;
-    padding:8px 16px;
-    border-radius:4px;
-    transition:0.3s;
-    cursor:pointer;
-}
-
+nav {position:relative; background:#111; padding:15px 0; border-bottom:2px solid #222; display:flex; justify-content:center;}
+.discord-btn {position:absolute; left:20px; top:50%; transform:translateY(-50%); background:#5865F2; color:#fff; padding:8px 16px; border-radius:5px; text-decoration:none; font-weight:bold; transition:0.3s;}
+.discord-btn:hover {background:#4752c4;}
+.nav-center {display:flex; justify-content:center; gap:25px;}
+nav a {color:#fff; text-decoration:none; font-weight:bold; padding:8px 16px; border-radius:4px; cursor:pointer; transition:0.3s;}
 nav a:hover {background:#ff4b5c; color:#000;}
 nav a.active {background:#ff4b5c; color:#000;}
 
 /* SECTION */
-section {
-    max-width:1000px;
-    margin:40px auto;
-    padding:20px;
-    display:none;
-}
-
-.card {
-    background:#111;
-    padding:25px;
-    border-radius:10px;
-    border:1px solid #222;
-    margin-bottom:25px;
-}
-
-h2 {
-    border-bottom:2px solid #ff4b5c;
-    margin-bottom:15px;
-    padding-bottom:10px;
-}
-
-input, textarea {
-    width:100%;
-    padding:12px;
-    margin:8px 0 15px;
-    background:#1a1a1a;
-    color:#fff;
-    border:1px solid #333;
-    border-radius:5px;
-}
-
-button {
-    background:#ff4b5c;
-    color:#000;
-    border:none;
-    padding:12px 20px;
-    font-weight:bold;
-    cursor:pointer;
-    border-radius:5px;
-}
-
-footer {
-    background:#111;
-    text-align:center;
-    padding:20px;
-    border-top:2px solid #222;
-    color:#ccc;
-    margin-top:40px;
-}
+section {max-width:1000px; margin:40px auto; padding:20px; display:none;}
+.card {background:#111; padding:25px; border-radius:10px; border:1px solid #222; margin-bottom:25px;}
+h2 {border-bottom:2px solid #ff4b5c; padding-bottom:10px; margin-bottom:15px;}
+input, textarea {width:100%; padding:12px; margin:8px 0 15px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:5px;}
+textarea {resize:none;}
+button {background:#ff4b5c; color:#000; border:none; padding:12px 20px; font-weight:bold; cursor:pointer; border-radius:5px; transition:0.3s;}
+button:hover {background:#e03f50;}
+footer {background:#111; text-align:center; padding:20px; border-top:2px solid #222; font-size:14px; color:#ccc;}
 </style>
 </head>
 
@@ -144,12 +47,7 @@ footer {
 </header>
 
 <nav>
-    <!-- Discord vľavo -->
-    <a href="https://discord.gg/ZcjnQqvVcD" target="_blank" class="discord-btn">
-        Discord
-    </a>
-
-    <!-- Stred menu -->
+    <a href="https://discord.gg/ZcjnQqvVcD" target="_blank" class="discord-btn">Discord</a>
     <div class="nav-center">
         <a class="active" onclick="showTab('home', this)">Domov</a>
         <a onclick="showTab('rules', this)">Pravidlá</a>
@@ -158,7 +56,6 @@ footer {
     </div>
 </nav>
 
-<!-- DOMOV -->
 <section id="home">
     <div class="card">
         <h2>O serveri</h2>
@@ -166,7 +63,6 @@ footer {
     </div>
 </section>
 
-<!-- PRAVIDLÁ -->
 <section id="rules">
     <div class="card">
         <h2>Pravidlá</h2>
@@ -178,375 +74,117 @@ footer {
     </div>
 </section>
 
-<!-- WHITELIST -->
 <section id="whitelist">
     <div class="card">
         <h2>Whitelist formulár</h2>
         <form id="wlForm">
             <label>Meno / Nick</label>
             <input name="Meno" required>
-
             <label>Vek</label>
             <input name="Vek" type="number" required>
-
             <label>Discord</label>
             <input name="Discord" required>
-
             <label>Skúsenosti</label>
             <textarea name="Skusenosti" required></textarea>
-
             <label>Prečo chceš hrať</label>
             <textarea name="Preco" required></textarea>
-
             <button type="submit">Odoslať</button>
         </form>
     </div>
 </section>
 
-<!-- ADMIN -->
 <section id="admin">
     <div class="card">
-        <h2>Admin panel</h2>
-
+        <h2>Admin Panel</h2>
         <div id="login">
             <input type="password" id="adminPass" placeholder="Heslo">
-            <button onclick="login()">Prihlásiť</button>
+            <button onclick="loginAdmin()">Prihlásiť</button>
         </div>
-
         <div id="panel" style="display:none;">
-            <button onclick="logout()">Odhlásiť</button>
-            <h3>Žiadosti</h3>
+            <button onclick="logoutAdmin()">Odhlásiť</button>
             <ul id="requests"></ul>
         </div>
     </div>
 </section>
 
 <footer>
-© 2026 Fracture Roleplay
+    © 2026 Fracture Roleplay
 </footer>
 
 <script>
+// --- Prepínanie sekcií ---
 function showTab(id, el){
     document.querySelectorAll("section").forEach(s=>s.style.display="none");
     document.getElementById(id).style.display="block";
-
-    document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
+    document.querySelectorAll(".nav-center a").forEach(a=>a.classList.remove("active"));
     if(el) el.classList.add("active");
 }
 document.querySelectorAll("section")[0].style.display="block";
 
-/* WHITELIST SEND */
+// --- WHITELIST FORM ---
 document.getElementById("wlForm").addEventListener("submit", e=>{
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.target));
-
     fetch("/api/whitelist",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(data)
-    })
-    .then(r=>r.json())
-    .then(r=>{
-        if(r.success){
-            alert("Žiadosť odoslaná");
-            e.target.reset();
-        } else alert("Chyba");
-    });
+    }).then(r=>r.json())
+      .then(r=>{
+          if(r.success){ alert("Žiadosť odoslaná"); e.target.reset(); }
+          else alert("Chyba: "+(r.error||"Nepodarilo sa odoslať"));
+      });
 });
 
-/* ADMIN */
-let password="";
+// --- ADMIN PANEL ---
+const ADMIN_PASSWORD = "Fracture123";
 
-function login(){
-    password=document.getElementById("adminPass").value;
+function loginAdmin(){
+    const pass = document.getElementById("adminPass").value;
+    if(pass !== ADMIN_PASSWORD){ alert("Nesprávne heslo"); return; }
     document.getElementById("login").style.display="none";
     document.getElementById("panel").style.display="block";
     loadRequests();
 }
 
-function logout(){
+function logoutAdmin(){
     document.getElementById("login").style.display="block";
     document.getElementById("panel").style.display="none";
 }
 
 function loadRequests(){
-    fetch("/api/whitelist")
-    .then(r=>r.json())
-    .then(data=>{
-        const ul=document.getElementById("requests");
+    fetch("/api/whitelist").then(r=>r.json()).then(data=>{
+        const ul = document.getElementById("requests");
         ul.innerHTML="";
+        if(data.length===0){ ul.innerHTML="<li>Žiadne žiadosti</li>"; return; }
         data.forEach((req,i)=>{
-            const li=document.createElement("li");
-            li.innerHTML=`
-            <b>Meno:</b> ${req.Meno}<br>
-            <b>Vek:</b> ${req.Vek}<br>
-            <b>Discord:</b> ${req.Discord}<br>
-            <b>Skúsenosti:</b> ${req.Skusenosti}<br>
-            <b>Prečo:</b> ${req.Preco}<br>
-            <button onclick="action(${i},'approve')">Schváliť</button>
-            <button onclick="action(${i},'reject')">Odmietnuť</button>
-            <hr>`;
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <b>Meno:</b> ${req.Meno}<br>
+                <b>Vek:</b> ${req.Vek}<br>
+                <b>Discord:</b> ${req.Discord}<br>
+                <b>Skúsenosti:</b> ${req.Skusenosti}<br>
+                <b>Prečo:</b> ${req.Preco}<br>
+                <button onclick="action(${i},'approve')">Schváliť</button>
+                <button onclick="action(${i},'reject')">Odmietnuť</button>
+                <hr>
+            `;
             ul.appendChild(li);
         });
     });
 }
 
-function action(index,act){
+function action(index, act){
     fetch("/api/whitelist/action",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({index:index,action:act,password:password})
-    }).then(()=>loadRequests());
-}
-</script>
-
-</body>
-</html>
-=======
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fracture Roleplay</title>
-
-<style>
-/* RESET & BODY */
-* {margin:0; padding:0; box-sizing:border-box;}
-body {font-family: 'Arial', sans-serif; background:#0d0d0d; color:#fff; line-height:1.6;}
-
-/* HEADER */
-header {
-    position: relative;
-    background: linear-gradient(90deg, #1a1a1a, #111);
-    text-align: center;
-    padding: 30px 20px;
-}
-
-/* Logo úplne doľava */
-.logo {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 80px; 
-    height: auto;
-}
-
-/* Nadpis a podnadpis */
-.header-text h1 {font-size:48px;color:#ff4b5c;margin:0;}
-.header-text p {color:#ccc;font-size:18px;margin:5px 0 0 0;}
-
-/* Pre mobil */
-@media (max-width: 600px) {
-    .logo {position: static; display: block; margin: 0 auto 10px auto;}
-}
-
-/* NAV */
-nav {display:flex;justify-content:center;background:#111;padding:15px 0;border-bottom:2px solid #222;flex-wrap: wrap;}
-nav a {color:#fff;text-decoration:none;margin:5px 25px;font-weight:bold;font-size:16px;padding:8px 16px;border-radius:4px;transition:0.3s;cursor:pointer;}
-nav a:hover {background:#ff4b5c;color:#000;}
-nav a.active {background:#ff4b5c;color:#000;}
-
-/* SECTION */
-section {max-width:1000px;margin:40px auto;padding:20px;display:none;animation:fadeIn 0.5s ease-in-out;}
-@keyframes fadeIn {from {opacity:0;} to {opacity:1;}}
-
-/* CARD */
-.card {background:#111;padding:25px;border-radius:10px;border:1px solid #222;margin-bottom:25px;box-shadow:0 0 15px rgba(255,75,92,0.2);}
-h2 {border-bottom:2px solid #ff4b5c; padding-bottom:10px; margin-bottom:15px;}
-
-/* FORM */
-input, textarea {width:100%;padding:12px;margin:8px 0 15px;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:5px;}
-textarea {resize:none;}
-button {background:#ff4b5c;color:#000;border:none;padding:12px 20px;font-weight:bold;cursor:pointer;border-radius:5px;transition:0.3s;}
-button:hover {background:#e03f50;}
-
-/* FOOTER */
-footer {background:#111;text-align:center;padding:20px;border-top:2px solid #222;font-size:14px;color:#ccc;}
-
-/* LISTY */
-ul {list-style:none;padding-left:0;}
-ul li {padding:8px 0;border-bottom:1px solid #222;}
-
-/* MEDIA */
-@media (max-width: 600px) {.logo-container {flex-direction: column; gap:10px;} nav {flex-direction: column;}}
-</style>
-</head>
-
-<body>
-
-<header>
-    <div class="logo-container">
-        <img src="logo.png" alt="Fracture Roleplay Logo" class="logo">
-        <div class="header-text">
-            <h1>Fracture Roleplay</h1>
-            <p>Vitaj na našom FiveM RP serveri!</p>
-        </div>
-    </div>
-</header>
-
-<nav>
-    <a class="active" onclick="showTab('home', this)">Domov</a>
-    <a onclick="showTab('rules', this)">Pravidlá</a>
-    <a onclick="showTab('whitelist', this)">Whitelist</a>
-    <a onclick="showTab('admin', this)">Admin</a>
-</nav>
-
-<!-- DOMOV -->
-<section id="home">
-    <div class="card">
-        <h2>O serveri</h2>
-        <p>Fracture Roleplay je realistický FiveM server zameraný na kvalitný roleplay a komunitu. Vstúp do sveta Fracture RP a zaži jedinečné príbehy spolu s ostatnými hráčmi!</p>
-    </div>
-    <div class="card">
-        <h2>Funkcie servera</h2>
-        <ul>
-            <li>Realistický ekonomický systém</li>
-            <li>Rozmanité povolania a frakcie</li>
-            <li>Eventy a komunitné aktivity</li>
-            <li>Prísna kontrola RP a pravidiel</li>
-        </ul>
-    </div>
-</section>
-
-<!-- PRAVIDLÁ -->
-<section id="rules">
-    <div class="card">
-        <h2>Pravidlá</h2>
-        <ul>
-            <li>Rešpektuj ostatných hráčov.</li>
-            <li>Žiadny cheat ani exploit.</li>
-            <li>Dodržiavaj RP situácie a logiku.</li>
-            <li>Žiadne off-RP správanie.</li>
-            <li>Dodržiavaj pokyny adminov.</li>
-        </ul>
-    </div>
-</section>
-
-<!-- WHITELIST -->
-<section id="whitelist">
-    <div class="card">
-        <h2>Prihláška do Whitelistu</h2>
-        <form id="wlForm">
-            <label>Meno / Nick</label>
-            <input type="text" name="Meno" required>
-            <label>Vek</label>
-            <input type="number" name="Vek" required>
-            <label>Discord</label>
-            <input type="text" name="Discord" required>
-            <label>Skúsenosti s RP</label>
-            <textarea name="Skusenosti" required></textarea>
-            <label>Prečo chceš hrať na Fracture RP</label>
-            <textarea name="Preco" required></textarea>
-            <button type="submit">Odoslať</button>
-        </form>
-    </div>
-</section>
-
-<!-- ADMIN PANEL -->
-<section id="admin">
-    <div class="card">
-        <h2>Admin Panel - Whitelist</h2>
-
-        <!-- Prihlásenie -->
-        <div id="login">
-            <input type="password" id="adminPass" placeholder="Admin heslo">
-            <button onclick="loginAdmin()">Prihlásiť</button>
-        </div>
-
-        <!-- Panel so žiadosťami -->
-        <div id="panel" style="display:none;">
-            <ul id="requests"></ul>
-        </div>
-    </div>
-</section>
-
-<footer>
-    © 2026 Fracture Roleplay | Všetky práva vyhradené
-</footer>
-
-<script>
-// --- Prepínanie sekcií ---
-function showTab(tabId, element) {
-    const sections = document.querySelectorAll('section');
-    sections.forEach(section => section.style.display = (section.id === tabId) ? 'block' : 'none');
-
-    const links = document.querySelectorAll('nav a');
-    links.forEach(link => link.classList.remove('active'));
-    element.classList.add('active');
-}
-
-// --- Zobraziť Domov pri načítaní ---
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('nav a')[0].click();
-});
-
-// --- WHITELIST FORM ---
-document.getElementById('wlForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const formData = {
-        Meno:this.Meno.value,
-        Vek:this.Vek.value,
-        Discord:this.Discord.value,
-        Skusenosti:this.Skusenosti.value,
-        Preco:this.Preco.value
-    };
-    fetch('/api/whitelist',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(formData)
-    })
-    .then(res=>res.json())
-    .then(res=>{
-        if(res.success){ alert('Žiadosť odoslaná!'); this.reset(); }
-        else alert('Chyba pri odosielaní žiadosti: ' + res.error);
-    })
-    .catch(err=>{ console.error(err); alert('Chyba pri odosielaní žiadosti'); });
-});
-
-// --- ADMIN PANEL ---
-const ADMIN_PASSWORD = "Fracture123"; // Zmeň na vlastné heslo
-
-function loginAdmin(){
-    const pass = document.getElementById('adminPass').value;
-    if(pass !== ADMIN_PASSWORD){ alert('Nesprávne heslo!'); return; }
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('panel').style.display = 'block';
-    loadRequests();
-}
-
-function loadRequests(){
-    fetch('/api/whitelist')
-        .then(res=>res.json())
-        .then(data=>{
-            const ul = document.getElementById('requests');
-            ul.innerHTML = '';
-            if(data.length === 0){ ul.innerHTML = '<li>Žiadne žiadosti</li>'; return; }
-            data.forEach((req,idx)=>{
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${req.Meno}</strong> (${req.Vek} rokov) - ${req.Discord}<br>
-                                <button onclick="action(${idx},'approve')">Schváliť</button>
-                                <button onclick="action(${idx},'reject')">Odmietnuť</button>`;
-                ul.appendChild(li);
-            });
-        });
-}
-
-function action(index, act){
-    fetch('/api/whitelist/action',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({index:index, action:act, password:ADMIN_PASSWORD})
-    })
-    .then(res=>res.json())
-    .then(res=>{
-        if(res.success) loadRequests();
-        else alert(res.error);
+        body:JSON.stringify({index:index, action:act, password:ADMIN_PASSWORD})
+    }).then(r=>r.json()).then(r=>{
+        if(r.success) loadRequests();
+        else alert(r.error||"Chyba pri akcii");
     });
 }
 </script>
 
 </body>
 </html>
->>>>>>> d95e89721b0d99f5c9cc02a3846aeaa68e4a3b09
