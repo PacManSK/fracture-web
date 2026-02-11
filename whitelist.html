@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<title>Whitelist | Fracture Roleplay</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #000;
+    color: #fff;
+}
+
+nav {
+    background: #fff;
+    text-align: center;
+    padding: 12px;
+}
+
+nav a {
+    color: #000;
+    margin: 0 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+section {
+    max-width: 900px;
+    margin: auto;
+    padding: 40px 20px;
+}
+
+.card {
+    background: #111;
+    padding: 25px;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+button {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover {background:#ccc;}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <a href="index.html">Domov</a>
+    <a href="rules.html">Pravidlá</a>
+    <a href="whitelist.html">Whitelist</a>
+</nav>
+
+<section>
+    <div class="card">
+        <h1>Whitelist formulár</h1>
+
+        <!-- Upravený formulár -->
+        <form id="wlForm">
+            <label>Meno / Nick</label>
+            <input type="text" name="Meno" required>
+
+            <label>Vek</label>
+            <input type="number" name="Vek" required>
+
+            <label>Discord</label>
+            <input type="text" name="Discord" required>
+
+            <label>Skúsenosti s RP</label>
+            <textarea name="Skusenosti" required></textarea>
+
+            <label>Prečo chceš hrať na Fracture RP</label>
+            <textarea name="Preco" required></textarea>
+
+            <button type="submit">Odoslať</button>
+        </form>
+    </div>
+</section>
+
+<script>
+// Odosielanie WL formulára na Node.js server
+document.getElementById('wlForm').addEventListener('submit', function(e){
+    e.preventDefault(); // zabráni klasickému submitu
+
+    const formData = {
+        Meno: this.Meno.value,
+        Vek: this.Vek.value,
+        Discord: this.Discord.value,
+        Skusenosti: this.Skusenosti.value,
+        Preco: this.Preco.value
+    };
+
+    fetch('/api/whitelist', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(formData)
+    })
+    .then(res => res.json())
+    .then(res => {
+        if(res.success){
+            alert('Žiadosť odoslaná!');
+            this.reset(); // vyprázdni formulár
+        } else {
+            alert('Chyba pri odosielaní žiadosti');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Chyba pri odosielaní žiadosti');
+    });
+});
+</script>
+
+</body>
+</html>
