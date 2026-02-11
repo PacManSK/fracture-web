@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel - Fracture RP</title>
+<style>
+body{font-family:Arial;background:#0d0d0d;color:#fff;padding:20px;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{border:1px solid #333;padding:8px;vertical-align:top;}
+th{background:#111;}
+button{padding:6px 10px;margin:2px;cursor:pointer;}
+.approve{background:green;color:#fff;border:none;}
+.reject{background:red;color:#fff;border:none;}
+.logout{background:#ff4b5c;color:#000;border:none;float:right;}
+.tabs button{background:#222;color:#fff;border:none;margin-right:5px;}
+</style>
+</head>
+<body>
+
+<h1>Admin Panel - Fracture RP</h1>
+
+<div id="login">
+    <input type="password" id="pass" placeholder="Admin heslo">
+    <button onclick="login()">Prihlásiť</button>
+</div>
+
+<div id="panel" style="display:none;">
+    <button class="logout" onclick="logout()">Odhlásiť</button>
+
+```
+<div class="tabs">
+    <button onclick="loadPending()">Čakajúce</button>
+    <button onclick="loadApproved()">Schválené</button>
+    <button onclick="loadRejected()">Odmietnuté</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Meno</th>
+            <th>Vek</th>
+            <th>Discord</th>
+            <th>Skúsenosti</th>
+            <th>Prečo</th>
+            <th>Akcie</th>
+        </tr>
+    </thead>
+    <tbody id="data"></tbody>
+</table>
+```
+
+</div>
+
+<script>
+let password="";
+
+function login(){
+    password=document.getElementById('pass').value;
+    document.getElementById('login').style.display='none';
+    document.getElementById('panel').style.display='block';
+    loadPending();
+}
+
+function logout(){
+    location.reload();
+}
+
+function render(data, showActions=true){
+    const tbody=document.getElementById('data');
+    tbody.innerHTML='';
+
+    if(data.length===0){
+        tbody.innerHTML='<tr><td colspan="6">Žiadne záznamy</td></tr>';
+        return;
+    }
+
+    data.forEach((req,idx)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+            <td>${req.Meno}</td>
+            <td>${req.Vek}</td>
+            <td>${req.Discord}</td>
+            <td>${req.Skusenosti}</td>
+            <td>${req.Preco}</td>
+            <td>
+            ${showActions ? `
+                <button class="approve" onclick="action(${idx},'approve')">✔</button>
+                <button class="reject" onclick="action(${idx},'reject')">✖</button>
+            ` : ''}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function loadPending(){
+    fetch('/api/whitelist')
+    .then(r=>r.json())
+    .then(data=>render(data,true));
+}
+
+function loadApproved(){
+    fetch('/api/approved')
+    .then(r=>r.json())
+    .then(data=>render(data,false));
+}
+
+function loadRejected(){
+    fetch('/api/rejected')
+    .then(r=>r.json())
+    .then(data=>render(data,false));
+}
+
+function action(index,act){
+    fetch('/api/whitelist/action',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({index:index,action:act,password:password})
+    })
+    .then(r=>r.json())
+    .then(res=>{
+        if(res.success) loadPending();
+        else alert(res.error);
+    });
+}
+</script>
+
+</body>
+</html>
+
