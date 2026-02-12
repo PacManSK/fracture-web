@@ -224,12 +224,23 @@ function logoutAdmin(){
   document.getElementById("panel").style.display="none";
 }
 
-/* Discord avatar bez bota: default avatar podľa poslednej číslice ID (vždy existuje) */
+/* fallback avatar (lokálny) */
 function getDiscordAvatar(req){
   const id = String(req.DiscordId || "").trim();
   if(!id) return "";
-  const idx = Number(id.slice(-1)) % 5; // 0-4
+  const idx = Number(id.slice(-1)) % 5;
   return `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
+}
+
+/* Vždy vráti niečo (real -> default -> local -> posledný fallback) */
+function pickAvatar(req){
+  if(req && req.avatarUrl) return req.avatarUrl;
+  if(req && req.defaultAvatarUrl) return req.defaultAvatarUrl;
+
+  const local = getDiscordAvatar(req);
+  if(local) return local;
+
+  return "https://cdn.discordapp.com/embed/avatars/0.png";
 }
 
 function escapeHtml(v){
@@ -256,10 +267,15 @@ function loadRequests(){
       const card=document.createElement("div");
       card.className="wl-card";
 
+      const avatar = pickAvatar(req);
+
       card.innerHTML=`
         <div class="wl-header">
           <div class="wl-user">
-            <img class="wl-avatar" src="${getDiscordAvatar(req)}" alt="avatar">
+            <img class="wl-avatar"
+                 src="${escapeHtml(avatar)}"
+                 alt="avatar"
+                 onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <div>
               <div class="wl-name">${escapeHtml(req.Meno)}</div>
               <div class="wl-sub">Discord: ${escapeHtml(req.Discord)}</div>
@@ -285,9 +301,8 @@ function loadRequests(){
         </div>
       `;
 
-      // klik na kartu = rozbalí
+      // klik na kartu = rozbalí (ale nie keď klikneš na button)
       card.addEventListener("click",(e)=>{
-        // aby klik na tlačidlá nerobil toggle
         if(e.target.tagName.toLowerCase()==="button") return;
         card.classList.toggle("open");
       });
