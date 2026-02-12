@@ -38,14 +38,34 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 
 /* ADMIN CARD */
 .wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;padding:15px;}
-.wl-header{display:flex;justify-content:space-between;align-items:center;}
-.wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;}
-.status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;}
-.wl-body{display:none;margin-top:10px;}
+.wl-header{display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.wl-user{display:flex;align-items:center;gap:12px;min-width:260px;}
+.wl-avatar{
+  width:46px;height:46px;border-radius:50%;
+  border:1px solid #333;object-fit:cover;flex:0 0 auto;
+  background:#222;
+}
+.wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;line-height:1.1;}
+.wl-sub{color:#bbb;font-size:13px;margin-top:4px;}
+.status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;white-space:nowrap;}
+.wl-body{display:none;margin-top:14px;}
 .wl-card.open .wl-body{display:block;}
-.wl-actions{display:flex;gap:10px;margin-top:10px;}
+.wl-actions{display:flex;gap:10px;margin-top:14px;}
 .ok{background:#16a34a;color:#fff;}
 .no{background:#dc2626;color:#fff;}
+
+/* Q/A style like screenshot */
+.qa-q{
+  margin-top:16px;
+  font-weight:900;
+  color:#ff4b5c;
+}
+.qa-a{
+  margin-top:8px;
+  color:#e9e9e9;
+  line-height:1.55;
+  white-space:pre-wrap;
+}
 </style>
 </head>
 
@@ -106,7 +126,13 @@ Fracture RP je realistický RP server.
 
 <div class="wl-field">
 <label>Discord</label>
-<input name="Discord" required>
+<input name="Discord" required placeholder="napr. doolbyxx">
+</div>
+
+<div class="wl-field">
+<label>Discord ID</label>
+<div class="wl-hint">Discord → Settings → Advanced → Developer Mode ON → pravý klik na profil → Copy ID</div>
+<input name="DiscordId" required placeholder="napr. 123456789012345678">
 </div>
 
 <div class="wl-field">
@@ -146,80 +172,144 @@ Fracture RP je realistický RP server.
 
 <script>
 function showTab(id,el){
-document.querySelectorAll("section").forEach(s=>s.style.display="none");
-document.getElementById(id).style.display="block";
-document.querySelectorAll(".nav-center a").forEach(a=>a.classList.remove("active"));
-el.classList.add("active");
+  document.querySelectorAll("section").forEach(s=>s.style.display="none");
+  document.getElementById(id).style.display="block";
+  document.querySelectorAll(".nav-center a").forEach(a=>a.classList.remove("active"));
+  el.classList.add("active");
 }
 document.querySelectorAll("section")[0].style.display="block";
 
 /* WL SEND */
 document.getElementById("wlForm").addEventListener("submit",e=>{
-e.preventDefault();
-const data=Object.fromEntries(new FormData(e.target));
-fetch("/api/whitelist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
-.then(r=>r.json()).then(r=>{
-if(r.success){alert("Odoslané");e.target.reset();}
-});
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(e.target));
+  fetch("/api/whitelist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
+  .then(r=>r.json()).then(r=>{
+    if(r.success){alert("Odoslané");e.target.reset(); updateCountersNow(); }
+    else alert("Chyba: " + (r.error || "Nepodarilo sa odoslať"));
+  })
+  .catch(()=>alert("Chyba pripojenia na server"));
 });
 
 /* COUNTERS */
 function bindCounter(name,id,max){
-const t=document.querySelector(`textarea[name="${name}"]`);
-const c=document.getElementById(id);
-if(!t||!c)return;
-t.addEventListener("input",()=>c.textContent=t.value.length+"/"+max);
+  const t=document.querySelector(`textarea[name="${name}"]`);
+  const c=document.getElementById(id);
+  if(!t||!c)return;
+  const update = ()=> c.textContent = t.value.length + "/" + max;
+  t.addEventListener("input", update);
+  update();
 }
 bindCounter("Skusenosti","c1",1000);
 bindCounter("Preco","c2",1000);
+function updateCountersNow(){
+  const t1=document.querySelector(`textarea[name="Skusenosti"]`);
+  const t2=document.querySelector(`textarea[name="Preco"]`);
+  if(t1) document.getElementById("c1").textContent = t1.value.length + "/1000";
+  if(t2) document.getElementById("c2").textContent = t2.value.length + "/1000";
+}
 
 /* ADMIN */
 const ADMIN_PASSWORD="Fracture123";
 
 function loginAdmin(){
-if(document.getElementById("adminPass").value!==ADMIN_PASSWORD)return alert("Zlé heslo");
-document.getElementById("login").style.display="none";
-document.getElementById("panel").style.display="block";
-loadRequests();
+  if(document.getElementById("adminPass").value!==ADMIN_PASSWORD) return alert("Zlé heslo");
+  document.getElementById("login").style.display="none";
+  document.getElementById("panel").style.display="block";
+  loadRequests();
 }
 
 function logoutAdmin(){
-document.getElementById("login").style.display="block";
-document.getElementById("panel").style.display="none";
+  document.getElementById("login").style.display="block";
+  document.getElementById("panel").style.display="none";
+}
+
+/* Discord avatar bez bota: default avatar podľa poslednej číslice ID (vždy existuje) */
+function getDiscordAvatar(req){
+  const id = String(req.DiscordId || "").trim();
+  if(!id) return "";
+  const idx = Number(id.slice(-1)) % 5; // 0-4
+  return `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
+}
+
+function escapeHtml(v){
+  const s = String(v ?? "");
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function loadRequests(){
-fetch("/api/whitelist").then(r=>r.json()).then(data=>{
-const box=document.getElementById("requests");
-box.innerHTML="";
-data.forEach((req,i)=>{
-const card=document.createElement("div");
-card.className="wl-card";
-card.innerHTML=`
-<div class="wl-header">
-<div class="wl-name">${req.Meno}</div>
-<div class="status">${req.status||"pending"}</div>
-</div>
-<div class="wl-body">
-<b>Vek:</b> ${req.Vek}<br>
-<b>Discord:</b> ${req.Discord}<br><br>
-<b>Skúsenosti:</b><br>${req.Skusenosti}<br><br>
-<b>Prečo:</b><br>${req.Preco}
-</div>
-<div class="wl-actions">
-<button class="ok" onclick="action(${i},'approve')">Schváliť</button>
-<button class="no" onclick="action(${i},'reject')">Zamietnuť</button>
-</div>
-`;
-card.onclick=()=>card.classList.toggle("open");
-box.appendChild(card);
-});
-});
+  fetch("/api/whitelist").then(r=>r.json()).then(data=>{
+    const box=document.getElementById("requests");
+    box.innerHTML="";
+
+    if(!Array.isArray(data) || data.length === 0){
+      box.innerHTML = "<p style='color:#bbb;'>Žiadne žiadosti</p>";
+      return;
+    }
+
+    data.forEach((req,i)=>{
+      const card=document.createElement("div");
+      card.className="wl-card";
+
+      card.innerHTML=`
+        <div class="wl-header">
+          <div class="wl-user">
+            <img class="wl-avatar" src="${getDiscordAvatar(req)}" alt="avatar">
+            <div>
+              <div class="wl-name">${escapeHtml(req.Meno)}</div>
+              <div class="wl-sub">Discord: ${escapeHtml(req.Discord)}</div>
+            </div>
+          </div>
+          <div class="status">${escapeHtml(req.status||"pending")}</div>
+        </div>
+
+        <div class="wl-body">
+          <div class="qa-q">Věk:</div>
+          <div class="qa-a">${escapeHtml(req.Vek)} let</div>
+
+          <div class="qa-q">Zkušenosti s RP:</div>
+          <div class="qa-a">${escapeHtml(req.Skusenosti)}</div>
+
+          <div class="qa-q">Proč se chce připojit:</div>
+          <div class="qa-a">${escapeHtml(req.Preco)}</div>
+        </div>
+
+        <div class="wl-actions">
+          <button class="ok" onclick="action(${i},'approve')">Schváliť</button>
+          <button class="no" onclick="action(${i},'reject')">Zamietnuť</button>
+        </div>
+      `;
+
+      // klik na kartu = rozbalí
+      card.addEventListener("click",(e)=>{
+        // aby klik na tlačidlá nerobil toggle
+        if(e.target.tagName.toLowerCase()==="button") return;
+        card.classList.toggle("open");
+      });
+
+      box.appendChild(card);
+    });
+  })
+  .catch(()=>alert("Nepodarilo sa načítať žiadosti"));
 }
 
 function action(index,act){
-fetch("/api/whitelist/action",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({index:index,action:act,password:ADMIN_PASSWORD})})
-.then(()=>loadRequests());
+  fetch("/api/whitelist/action",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({index:index,action:act,password:ADMIN_PASSWORD})
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.success) loadRequests();
+    else alert(res.error || "Chyba pri akcii");
+  })
+  .catch(()=>alert("Chyba pripojenia na server"));
 }
 </script>
 

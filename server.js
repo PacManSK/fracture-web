@@ -17,7 +17,6 @@ function readWL() {
   try {
     return JSON.parse(fs.readFileSync(wlFile, 'utf8') || '[]');
   } catch (e) {
-    // keď je súbor rozbitý, aspoň nespadne server
     return [];
   }
 }
@@ -28,20 +27,35 @@ function writeWL(data) {
 
 // prijatie WL
 app.post('/api/whitelist', (req, res) => {
-  const { Meno, Vek, Discord, Skusenosti, Preco } = req.body;
+  const { Meno, Vek, Discord, DiscordId, Skusenosti, Preco } = req.body;
 
-  if (!Meno || !Vek || !Discord || !Skusenosti || !Preco) {
+  if (!Meno || !Vek || !Discord || !DiscordId || !Skusenosti || !Preco) {
     return res.json({ success: false, error: 'Nevyplnené polia!' });
   }
 
+  // jednoduchá kontrola že ID vyzerá ako čísla
+  const idStr = String(DiscordId).trim();
+  if (!/^\d{10,25}$/.test(idStr)) {
+    return res.json({ success: false, error: 'Discord ID je neplatné (musí byť číslo).' });
+  }
+
   const wl = readWL();
-  wl.push({ Meno, Vek, Discord, Skusenosti, Preco, status: 'pending', createdAt: new Date().toISOString() });
+  wl.push({
+    Meno,
+    Vek,
+    Discord,
+    DiscordId: idStr,
+    Skusenosti,
+    Preco,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  });
   writeWL(wl);
 
   res.json({ success: true });
 });
 
-// admin list (vracia všetko -> index sedí s tvojím HTML)
+// admin list
 app.get('/api/whitelist', (req, res) => {
   res.json(readWL());
 });
