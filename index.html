@@ -37,13 +37,13 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 .wl-count{font-size:12px;color:#bbb;text-align:right;}
 
 /* ADMIN CARD */
-.wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;}
-.wl-top{display:flex;justify-content:space-between;padding:15px;}
+.wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;padding:15px;}
+.wl-header{display:flex;justify-content:space-between;align-items:center;}
 .wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;}
 .status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;}
-.wl-body{display:none;padding:15px;}
+.wl-body{display:none;margin-top:10px;}
 .wl-card.open .wl-body{display:block;}
-.wl-actions{display:flex;gap:10px;padding:15px;}
+.wl-actions{display:flex;gap:10px;margin-top:10px;}
 .ok{background:#16a34a;color:#fff;}
 .no{background:#dc2626;color:#fff;}
 </style>
@@ -69,9 +69,23 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 </div>
 </nav>
 
-<section id="home"><div class="card"><h2>O serveri</h2>Fracture RP je realistický RP server.</div></section>
+<section id="home">
+<div class="card">
+<h2>O serveri</h2>
+Fracture RP je realistický RP server.
+</div>
+</section>
 
-<section id="rules"><div class="card"><h2>Pravidlá</h2><ul><li>Rešpekt</li><li>Bez cheatov</li><li>Dodržuj RP</li></ul></div></section>
+<section id="rules">
+<div class="card">
+<h2>Pravidlá</h2>
+<ul>
+<li>Rešpektuj ostatných</li>
+<li>Žiadne cheaty</li>
+<li>Dodržuj RP</li>
+</ul>
+</div>
+</section>
 
 <section id="whitelist">
 <div class="card">
@@ -80,8 +94,8 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 <form id="wlForm">
 
 <div class="wl-field">
-<label>Meno</label>
-<div class="wl-hint">RP meno</div>
+<label>Meno / Nick</label>
+<div class="wl-hint">Ako ťa budeme volať?</div>
 <input name="Meno" required>
 </div>
 
@@ -96,19 +110,18 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 </div>
 
 <div class="wl-field">
-<label>Skúsenosti</label>
+<label>Zkušenosti s RP</label>
 <textarea name="Skusenosti" maxlength="1000" required></textarea>
 <div class="wl-count" id="c1">0/1000</div>
 </div>
 
 <div class="wl-field">
-<label>Prečo chceš hrať</label>
+<label>Proč se chceš připojit</label>
 <textarea name="Preco" maxlength="1000" required></textarea>
 <div class="wl-count" id="c2">0/1000</div>
 </div>
 
 <button type="submit">Odoslať</button>
-
 </form>
 </div>
 </section>
@@ -119,14 +132,13 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 
 <div id="login">
 <input type="password" id="adminPass" placeholder="Heslo">
-<button onclick="loginAdmin()">Login</button>
+<button onclick="loginAdmin()">Prihlásiť</button>
 </div>
 
 <div id="panel" style="display:none;">
 <button onclick="logoutAdmin()">Odhlásiť</button>
 <div id="requests"></div>
 </div>
-
 </div>
 </section>
 
@@ -141,6 +153,7 @@ el.classList.add("active");
 }
 document.querySelectorAll("section")[0].style.display="block";
 
+/* WL SEND */
 document.getElementById("wlForm").addEventListener("submit",e=>{
 e.preventDefault();
 const data=Object.fromEntries(new FormData(e.target));
@@ -150,14 +163,17 @@ if(r.success){alert("Odoslané");e.target.reset();}
 });
 });
 
-function count(name,id,max){
+/* COUNTERS */
+function bindCounter(name,id,max){
 const t=document.querySelector(`textarea[name="${name}"]`);
 const c=document.getElementById(id);
+if(!t||!c)return;
 t.addEventListener("input",()=>c.textContent=t.value.length+"/"+max);
 }
-count("Skusenosti","c1",1000);
-count("Preco","c2",1000);
+bindCounter("Skusenosti","c1",1000);
+bindCounter("Preco","c2",1000);
 
+/* ADMIN */
 const ADMIN_PASSWORD="Fracture123";
 
 function loginAdmin(){
@@ -166,6 +182,7 @@ document.getElementById("login").style.display="none";
 document.getElementById("panel").style.display="block";
 loadRequests();
 }
+
 function logoutAdmin(){
 document.getElementById("login").style.display="block";
 document.getElementById("panel").style.display="none";
@@ -179,18 +196,16 @@ data.forEach((req,i)=>{
 const card=document.createElement("div");
 card.className="wl-card";
 card.innerHTML=`
-<div class="wl-top">
+<div class="wl-header">
 <div class="wl-name">${req.Meno}</div>
 <div class="status">${req.status||"pending"}</div>
 </div>
-
 <div class="wl-body">
 <b>Vek:</b> ${req.Vek}<br>
-<b>Discord:</b> ${req.Discord}<br>
+<b>Discord:</b> ${req.Discord}<br><br>
 <b>Skúsenosti:</b><br>${req.Skusenosti}<br><br>
 <b>Prečo:</b><br>${req.Preco}
 </div>
-
 <div class="wl-actions">
 <button class="ok" onclick="action(${i},'approve')">Schváliť</button>
 <button class="no" onclick="action(${i},'reject')">Zamietnuť</button>
