@@ -1,4 +1,4 @@
-// server.js (FINAL - FIX CALLBACK NEWLINES + DEBUG)
+// server.js (FINAL - NO-CRASH OAUTH + DEBUG)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -14,8 +14,6 @@ const PORT = process.env.PORT || 3000;
 /* ============================= */
 const DISCORD_CLIENT_ID = String(process.env.DISCORD_CLIENT_ID || '').trim();
 const DISCORD_CLIENT_SECRET = String(process.env.DISCORD_CLIENT_SECRET || '').trim();
-
-// odstráni CR/LF + oreže okraje (fix na %0A%0A)
 const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
   .replace(/[\r\n]/g, '')
   .trim();
@@ -23,10 +21,10 @@ const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
 const ADMIN_DISCORD_ID = String(process.env.ADMIN_DISCORD_ID || '').trim();
 const SESSION_SECRET = String(process.env.SESSION_SECRET || 'fracture_secret_dev_only').trim();
 
-console.log("DISCORD_CLIENT_ID:", DISCORD_CLIENT_ID);
+console.log("DISCORD_CLIENT_ID:", DISCORD_CLIENT_ID || "(missing)");
 console.log("DISCORD_CALLBACK_URL RAW JSON:", JSON.stringify(process.env.DISCORD_CALLBACK_URL));
-console.log("DISCORD_CALLBACK_URL CLEAN:", DISCORD_CALLBACK_URL);
-console.log("ADMIN_DISCORD_ID:", ADMIN_DISCORD_ID);
+console.log("DISCORD_CALLBACK_URL CLEAN:", DISCORD_CALLBACK_URL || "(missing)");
+console.log("ADMIN_DISCORD_ID:", ADMIN_DISCORD_ID || "(missing)");
 
 /* ============================= */
 /* MIDDLEWARE */
@@ -46,7 +44,7 @@ app.use(session({
     httpOnly: true,
     sameSite: 'lax',
     secure: true, // Render = HTTPS
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dní
+    maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
 
@@ -57,40 +55,53 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 /* ============================= */
-/* PASSPORT DISCORD */
+/* DISCORD STRATEGY (SAFE INIT) */
 /* ============================= */
-passport.use(new DiscordStrategy(
-  {
-    clientID: DISCORD_CLIENT_ID,
-    clientSecret: DISCORD_CLIENT_SECRET,
-    callbackURL: DISCORD_CALLBACK_URL,
-    scope: ['identify']
-  },
-  (accessToken, refreshToken, profile, done) => {
-    const defaultAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(profile.discriminator) % 5}.png`;
-    const avatarUrl = profile.avatar
-      ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
-      : defaultAvatar;
+const discordEnvOk = !!(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
 
-    profile.avatarUrl = avatarUrl;
-    profile.defaultAvatarUrl = defaultAvatar;
+if (!discordEnvOk) {
+  console.log("⚠️ Discord OAuth is DISABLED (missing ENV). Set DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_CALLBACK_URL.");
+} else {
+  passport.use(new DiscordStrategy(
+    {
+      clientID: DISCORD_CLIENT_ID,
+      clientSecret: DISCORD_CLIENT_SECRET,
+      callbackURL: DISCORD_CALLBACK_URL,
+      scope: ['identify']
+    },
+    (accessToken, refreshToken, profile, done) => {
+      const defaultAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(profile.discriminator) % 5}.png`;
+      const avatarUrl = profile.avatar
+        ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
+        : defaultAvatar;
 
-    console.log("Discord login OK:", profile.username, profile.id);
-    return done(null, profile);
-  }
-));
+      profile.avatarUrl = avatarUrl;
+      profile.defaultAvatarUrl = defaultAvatar;
+
+      console.log("Discord login OK:", profile.username, profile.id);
+      return done(null, profile);
+    }
+  ));
+}
 
 /* ============================= */
 /* DISCORD AUTH ROUTES */
 /* ============================= */
 
-app.get('/auth/discord',
-  (req, res, next) => {
-    console.log("CALLBACK URL USED:", DISCORD_CALLBACK_URL);
-    next();
-  },
-  passport.authenticate('discord')
-);
+app.get('/auth/discord', (req, res, next) => {
+  if (!discordEnvOk) {
+    return res.status(500).send(
+      "Discord OAuth nie je nastavený.\n" +
+      "Skontroluj Render ENV:\n" +
+      "- DISCORD_CLIENT_ID\n" +
+      "- DISCORD_CLIENT_SECRET\n" +
+      "- DISCORD_CALLBACK_URL = https://fracture-web-let4.onrender.com/auth/discord/callback\n"
+    );
+  }
+
+  console.log("CALLBACK URL USED:", DISCORD_CALLBACK_URL);
+  next();
+}, passport.authenticate('discord'));
 
 app.get('/auth/discord/callback',
   (req, res, next) => {
@@ -161,12 +172,7 @@ app.post('/api/whitelist', (req, res) => {
 
   const wl = readWL();
   wl.push({
-    Meno,
-    Vek,
-    Discord,
-    DiscordId,
-    Skusenosti,
-    Preco,
+    Meno, Vek, Discord, DiscordId, Skusenosti, Preco,
     status: 'pending',
     createdAt: new Date().toISOString()
   });
@@ -202,6 +208,14 @@ app.post('/api/whitelist/action', (req, res) => {
   writeWL(wl);
 
   res.json({ success: true });
+});
+
+/* ============================= */
+/* GLOBAL ERROR HANDLER */
+/* ============================= */
+app.use((err, req, res, next) => {
+  console.error("UNHANDLED ERROR:", err);
+  res.status(500).send("Internal Server Error (pozri Render Logs).");
 });
 
 /* ============================= */
