@@ -1,4 +1,4 @@
-// server.js (FINAL DEBUG OAUTH)
+// server.js (FINAL - FIX CALLBACK NEWLINES + DEBUG)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -10,35 +10,43 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 /* ============================= */
-/* ENV (Render) */
+/* ENV (Render) - CLEANED */
 /* ============================= */
-const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const DISCORD_CALLBACK_URL = process.env.DISCORD_CALLBACK_URL;
-const ADMIN_DISCORD_ID = String(process.env.ADMIN_DISCORD_ID || '').trim();
-const SESSION_SECRET = process.env.SESSION_SECRET || 'fracture_secret_dev_only';
+const DISCORD_CLIENT_ID = String(process.env.DISCORD_CLIENT_ID || '').trim();
+const DISCORD_CLIENT_SECRET = String(process.env.DISCORD_CLIENT_SECRET || '').trim();
 
-console.log("CLIENT ID:", DISCORD_CLIENT_ID);
-console.log("CALLBACK URL:", DISCORD_CALLBACK_URL);
-console.log("ADMIN DISCORD ID:", ADMIN_DISCORD_ID);
+// odstráni CR/LF + oreže okraje (fix na %0A%0A)
+const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
+  .replace(/[\r\n]/g, '')
+  .trim();
+
+const ADMIN_DISCORD_ID = String(process.env.ADMIN_DISCORD_ID || '').trim();
+const SESSION_SECRET = String(process.env.SESSION_SECRET || 'fracture_secret_dev_only').trim();
+
+console.log("DISCORD_CLIENT_ID:", DISCORD_CLIENT_ID);
+console.log("DISCORD_CALLBACK_URL RAW JSON:", JSON.stringify(process.env.DISCORD_CALLBACK_URL));
+console.log("DISCORD_CALLBACK_URL CLEAN:", DISCORD_CALLBACK_URL);
+console.log("ADMIN_DISCORD_ID:", ADMIN_DISCORD_ID);
 
 /* ============================= */
 /* MIDDLEWARE */
 /* ============================= */
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
-
-app.set('trust proxy', 1);
 
 app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  name: 'fracture.sid',
+  proxy: true,
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
     secure: true, // Render = HTTPS
-    maxAge: 1000 * 60 * 60 * 24 * 7
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dní
   }
 }));
 
@@ -67,7 +75,7 @@ passport.use(new DiscordStrategy(
     profile.avatarUrl = avatarUrl;
     profile.defaultAvatarUrl = defaultAvatar;
 
-    console.log("Discord login:", profile.username, profile.id);
+    console.log("Discord login OK:", profile.username, profile.id);
     return done(null, profile);
   }
 ));
@@ -84,7 +92,6 @@ app.get('/auth/discord',
   passport.authenticate('discord')
 );
 
-/* 🔥 DEBUG CALLBACK ROUTE */
 app.get('/auth/discord/callback',
   (req, res, next) => {
     console.log("HIT /auth/discord/callback");
@@ -98,7 +105,6 @@ app.get('/auth/discord/callback',
   }
 );
 
-/* AUTH STATUS */
 app.get('/auth/me', (req, res) => {
   const loggedIn = !!req.user;
   const isAdmin = loggedIn && ADMIN_DISCORD_ID && String(req.user.id) === ADMIN_DISCORD_ID;
@@ -110,16 +116,17 @@ app.get('/auth/me', (req, res) => {
       id: req.user.id,
       username: req.user.username,
       discriminator: req.user.discriminator,
-      avatar: req.user.avatar
+      avatar: req.user.avatar,
+      avatarUrl: req.user.avatarUrl,
+      defaultAvatarUrl: req.user.defaultAvatarUrl
     } : null
   });
 });
 
-/* LOGOUT */
 app.get('/auth/logout', (req, res) => {
   req.logout(() => {
     req.session?.destroy(() => {
-      res.clearCookie('connect.sid');
+      res.clearCookie('fracture.sid');
       res.redirect('/?tab=admin');
     });
   });
@@ -130,7 +137,6 @@ app.get('/logout', (req, res) => res.redirect('/auth/logout'));
 /* ============================= */
 /* WHITELIST SYSTEM */
 /* ============================= */
-
 const wlFile = path.join(__dirname, 'whitelist.json');
 
 function readWL() {
@@ -199,8 +205,8 @@ app.post('/api/whitelist/action', (req, res) => {
 });
 
 /* ============================= */
-app.get('/health', (req, res) => res.status(200).send('ok'));
-
+/* START */
+/* ============================= */
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server beží na porte ${PORT}`);
 });
