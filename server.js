@@ -1,4 +1,6 @@
 // server.js (FINAL + DEBUG + RENDER SESSION FIX)
+console.log("=== FRACTURE SERVER VERSION 2026-02-13 A ===");
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
