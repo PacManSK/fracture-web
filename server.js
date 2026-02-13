@@ -1,4 +1,4 @@
-// server.js (FINAL)
+// server.js (FINAL - FIXED FOR RENDER)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -24,19 +24,22 @@ console.log("CLIENT ID:", DISCORD_CLIENT_ID);
 console.log("CALLBACK URL:", DISCORD_CALLBACK_URL);
 console.log("ADMIN DISCORD ID:", ADMIN_DISCORD_ID);
 
+// Render / proxy - MUSÍ byť pred session
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
-
-app.set('trust proxy', 1); // Render proxy
 
 app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  name: 'fracture.sid',
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production', // na Renderi true
+    // najlepšie pre Render (https cez proxy)
+    secure: 'auto',
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dní
   }
 }));
@@ -55,7 +58,6 @@ passport.use(new DiscordStrategy(
     scope: ['identify']
   },
   (accessToken, refreshToken, profile, done) => {
-    // real avatar URL ak existuje, inak default
     const defaultAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(profile.discriminator) % 5}.png`;
     const avatarUrl = profile.avatar
       ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
@@ -85,12 +87,17 @@ app.get(
   '/auth/discord/callback',
   passport.authenticate('discord', { failureRedirect: '/?tab=admin' }),
   (req, res) => {
-    // po login presmeruj rovno na Admin tab
     res.redirect('/?tab=admin');
   }
 );
 
-// ✅ index.html volá /auth/me
+// test endpoint (pomôže ti hneď vidieť či si prihlásený)
+app.get('/api/user', (req, res) => {
+  if (!req.user) return res.json(null);
+  res.json(req.user);
+});
+
+// index.html volá /auth/me
 app.get('/auth/me', (req, res) => {
   const loggedIn = !!req.user;
   const isAdmin = loggedIn && ADMIN_DISCORD_ID && String(req.user.id) === ADMIN_DISCORD_ID;
@@ -102,23 +109,25 @@ app.get('/auth/me', (req, res) => {
       id: req.user.id,
       username: req.user.username,
       discriminator: req.user.discriminator,
-      avatar: req.user.avatar
+      avatar: req.user.avatar,
+      avatarUrl: req.user.avatarUrl,
+      defaultAvatarUrl: req.user.defaultAvatarUrl
     } : null
   });
 });
 
-// ✅ index.html používa /auth/logout
+// index.html používa /auth/logout
 app.get('/auth/logout', (req, res) => {
-  // passport logout
   req.logout(() => {
+    // zruš session
     req.session?.destroy(() => {
-      res.clearCookie('connect.sid');
+      res.clearCookie('fracture.sid');
       res.redirect('/?tab=admin');
     });
   });
 });
 
-// (nechaj aj starý endpoint, aby sa nič nerozbilo)
+// nechaj aj starý endpoint
 app.get('/logout', (req, res) => res.redirect('/auth/logout'));
 
 /* ============================= */
@@ -131,7 +140,7 @@ function readWL() {
   if (!fs.existsSync(wlFile)) return [];
   try {
     return JSON.parse(fs.readFileSync(wlFile, 'utf8') || '[]');
-  } catch (e) {
+  } catch {
     return [];
   }
 }
@@ -164,13 +173,12 @@ app.post('/api/whitelist', (req, res) => {
   res.json({ success: true });
 });
 
-// list žiadostí (admin uvidí všetko, neadmin iba pending?)
-// necháme všetko, ale môžeš sprísniť neskôr
+// list žiadostí
 app.get('/api/whitelist', (req, res) => {
   res.json(readWL());
 });
 
-// ✅ approve/reject iba pre prihláseného admina
+// approve/reject iba pre prihláseného admina
 app.post('/api/whitelist/action', (req, res) => {
   const loggedIn = !!req.user;
   const isAdmin = loggedIn && ADMIN_DISCORD_ID && String(req.user.id) === ADMIN_DISCORD_ID;
