@@ -1,4 +1,4 @@
-// server.js (FINAL - NO-CRASH OAUTH + DEBUG)
+// server.js (FINAL - Discord OAuth + Multi Admins + WL)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -14,17 +14,35 @@ const PORT = process.env.PORT || 3000;
 /* ============================= */
 const DISCORD_CLIENT_ID = String(process.env.DISCORD_CLIENT_ID || '').trim();
 const DISCORD_CLIENT_SECRET = String(process.env.DISCORD_CLIENT_SECRET || '').trim();
+
+// odstráni CR/LF + oreže okraje (fix na %0A%0A)
 const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
   .replace(/[\r\n]/g, '')
   .trim();
 
-const ADMIN_DISCORD_ID = String(process.env.ADMIN_DISCORD_ID || '').trim();
+// Multi-admin (môžeš prepísať cez Render ENV: ADMIN_DISCORD_IDS="id1,id2,id3")
+const DEFAULT_ADMIN_IDS = [
+  "802210683541389332",
+  "1084959527255949423",
+  "569858258626412559",
+  "964552958886961152",
+  "800012301331202068"
+];
+
+const ADMIN_DISCORD_IDS = (String(process.env.ADMIN_DISCORD_IDS || '').trim()
+  ? String(process.env.ADMIN_DISCORD_IDS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+  : DEFAULT_ADMIN_IDS
+);
+
 const SESSION_SECRET = String(process.env.SESSION_SECRET || 'fracture_secret_dev_only').trim();
 
 console.log("DISCORD_CLIENT_ID:", DISCORD_CLIENT_ID || "(missing)");
 console.log("DISCORD_CALLBACK_URL RAW JSON:", JSON.stringify(process.env.DISCORD_CALLBACK_URL));
 console.log("DISCORD_CALLBACK_URL CLEAN:", DISCORD_CALLBACK_URL || "(missing)");
-console.log("ADMIN_DISCORD_ID:", ADMIN_DISCORD_ID || "(missing)");
+console.log("ADMIN_DISCORD_IDS:", ADMIN_DISCORD_IDS);
 
 /* ============================= */
 /* MIDDLEWARE */
@@ -44,7 +62,7 @@ app.use(session({
     httpOnly: true,
     sameSite: 'lax',
     secure: true, // Render = HTTPS
-    maxAge: 1000 * 60 * 60 * 24 * 7
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dní
   }
 }));
 
@@ -55,7 +73,7 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 /* ============================= */
-/* DISCORD STRATEGY (SAFE INIT) */
+/* DISCORD STRATEGY */
 /* ============================= */
 const discordEnvOk = !!(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
 
@@ -85,9 +103,17 @@ if (!discordEnvOk) {
 }
 
 /* ============================= */
+/* HELPERS */
+/* ============================= */
+function isAdminUser(req) {
+  const loggedIn = !!req.user;
+  if (!loggedIn) return false;
+  return ADMIN_DISCORD_IDS.includes(String(req.user.id));
+}
+
+/* ============================= */
 /* DISCORD AUTH ROUTES */
 /* ============================= */
-
 app.get('/auth/discord', (req, res, next) => {
   if (!discordEnvOk) {
     return res.status(500).send(
@@ -98,7 +124,6 @@ app.get('/auth/discord', (req, res, next) => {
       "- DISCORD_CALLBACK_URL = https://fracture-web-let4.onrender.com/auth/discord/callback\n"
     );
   }
-
   console.log("CALLBACK URL USED:", DISCORD_CALLBACK_URL);
   next();
 }, passport.authenticate('discord'));
@@ -118,7 +143,7 @@ app.get('/auth/discord/callback',
 
 app.get('/auth/me', (req, res) => {
   const loggedIn = !!req.user;
-  const isAdmin = loggedIn && ADMIN_DISCORD_ID && String(req.user.id) === ADMIN_DISCORD_ID;
+  const isAdmin = isAdminUser(req);
 
   res.json({
     loggedIn,
@@ -143,6 +168,7 @@ app.get('/auth/logout', (req, res) => {
   });
 });
 
+// kompatibilita
 app.get('/logout', (req, res) => res.redirect('/auth/logout'));
 
 /* ============================= */
@@ -163,6 +189,7 @@ function writeWL(data) {
   fs.writeFileSync(wlFile, JSON.stringify(data, null, 2));
 }
 
+// prijatie WL
 app.post('/api/whitelist', (req, res) => {
   const { Meno, Vek, Discord, DiscordId, Skusenosti, Preco } = req.body;
 
@@ -172,7 +199,12 @@ app.post('/api/whitelist', (req, res) => {
 
   const wl = readWL();
   wl.push({
-    Meno, Vek, Discord, DiscordId, Skusenosti, Preco,
+    Meno,
+    Vek,
+    Discord,
+    DiscordId,
+    Skusenosti,
+    Preco,
     status: 'pending',
     createdAt: new Date().toISOString()
   });
@@ -181,15 +213,14 @@ app.post('/api/whitelist', (req, res) => {
   res.json({ success: true });
 });
 
+// list žiadostí
 app.get('/api/whitelist', (req, res) => {
   res.json(readWL());
 });
 
+// approve/reject iba admin
 app.post('/api/whitelist/action', (req, res) => {
-  const loggedIn = !!req.user;
-  const isAdmin = loggedIn && ADMIN_DISCORD_ID && String(req.user.id) === ADMIN_DISCORD_ID;
-
-  if (!isAdmin) {
+  if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Nemáš prístup (prihlás sa ako admin).' });
   }
 
