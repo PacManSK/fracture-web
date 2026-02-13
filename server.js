@@ -1,4 +1,4 @@
-// server.js (FINAL - FIXED FOR RENDER)
+// server.js (FINAL + DEBUG + RENDER SESSION FIX)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -30,16 +30,23 @@ app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
+/**
+ * Render session fix:
+ * - proxy: true
+ * - secure: true
+ * - sameSite: 'none'
+ * Toto je najstabilnejšie pre OAuth redirect + cookies na Render.
+ */
 app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   name: 'fracture.sid',
+  proxy: true,
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
-    // najlepšie pre Render (https cez proxy)
-    secure: 'auto',
+    sameSite: 'none',
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 dní
   }
 }));
@@ -58,6 +65,7 @@ passport.use(new DiscordStrategy(
     scope: ['identify']
   },
   (accessToken, refreshToken, profile, done) => {
+    // real avatar URL ak existuje, inak default
     const defaultAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(profile.discriminator) % 5}.png`;
     const avatarUrl = profile.avatar
       ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
@@ -66,10 +74,36 @@ passport.use(new DiscordStrategy(
     profile.avatarUrl = avatarUrl;
     profile.defaultAvatarUrl = defaultAvatar;
 
-    console.log("Discord login:", profile.username, profile.id);
+    console.log("Discord login OK:", profile.username, profile.id);
     return done(null, profile);
   }
 ));
+
+/* ============================= */
+/* DEBUG ENDPOINTS */
+/* ============================= */
+
+app.get('/debug/ping', (req, res) => {
+  res.json({
+    ok: true,
+    https: req.secure,
+    proto: req.headers['x-forwarded-proto'],
+    host: req.headers.host,
+    cookieHeader: req.headers.cookie || null
+  });
+});
+
+app.get('/debug/session', (req, res) => {
+  res.json({
+    hasSession: !!req.session,
+    sessionID: req.sessionID || null,
+    user: req.user ? { id: req.user.id, username: req.user.username } : null
+  });
+});
+
+app.get('/debug/callback-hit', (req, res) => {
+  res.send('callback route reached');
+});
 
 /* ============================= */
 /* DISCORD AUTH ROUTES */
@@ -85,13 +119,18 @@ app.get('/auth/discord',
 
 app.get(
   '/auth/discord/callback',
+  (req, res, next) => {
+    console.log("HIT /auth/discord/callback");
+    next();
+  },
   passport.authenticate('discord', { failureRedirect: '/?tab=admin' }),
   (req, res) => {
+    console.log("AUTH OK, USER:", req.user?.id, req.user?.username);
     res.redirect('/?tab=admin');
   }
 );
 
-// test endpoint (pomôže ti hneď vidieť či si prihlásený)
+// test endpoint (uvidíš či si prihlásený)
 app.get('/api/user', (req, res) => {
   if (!req.user) return res.json(null);
   res.json(req.user);
@@ -116,10 +155,9 @@ app.get('/auth/me', (req, res) => {
   });
 });
 
-// index.html používa /auth/logout
+// logout
 app.get('/auth/logout', (req, res) => {
   req.logout(() => {
-    // zruš session
     req.session?.destroy(() => {
       res.clearCookie('fracture.sid');
       res.redirect('/?tab=admin');
@@ -127,7 +165,7 @@ app.get('/auth/logout', (req, res) => {
   });
 });
 
-// nechaj aj starý endpoint
+// starý endpoint
 app.get('/logout', (req, res) => res.redirect('/auth/logout'));
 
 /* ============================= */
