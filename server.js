@@ -199,6 +199,8 @@ app.post('/api/whitelist/action', (req, res) => {
 });
 
 /* ============================= */
-app.listen(PORT, () => {
+app.get('/health', (req, res) => res.status(200).send('ok'));
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server beží na porte ${PORT}`);
 });
