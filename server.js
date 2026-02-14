@@ -1,4 +1,4 @@
-// server.js (FINAL - Discord OAuth + Multi Admins + WL + Discord Webhook Colors + Admin Name)
+// server.js (FINAL - Discord OAuth + Multi Admins + WL only for logged-in users + Webhook colors + Admin name)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -20,10 +20,12 @@ const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
 
 const DISCORD_WEBHOOK_URL = String(process.env.DISCORD_WEBHOOK_URL || '').trim();
 
-// tvoje logo (musí existovať na webe)
-const BRAND_LOGO_URL = String(process.env.BRAND_LOGO_URL || 'https://fracture-web-let4.onrender.com/logo.png').trim();
+// logo pre webhook správy (môžeš zmeniť v Render ENV: BRAND_LOGO_URL)
+const BRAND_LOGO_URL = String(
+  process.env.BRAND_LOGO_URL || 'https://fracture-web-let4.onrender.com/logo.png'
+).trim();
 
-// Multi admin IDs (Render ENV ADMIN_DISCORD_IDS má prednosť, inak použije default)
+// Multi-admin IDs (Render ENV ADMIN_DISCORD_IDS="id1,id2,id3" má prednosť)
 const DEFAULT_ADMIN_IDS = [
   "802210683541389332",
   "1084959527255949423",
@@ -44,9 +46,9 @@ const SESSION_SECRET = String(process.env.SESSION_SECRET || 'fracture_secret_dev
 
 console.log("DISCORD_CLIENT_ID:", DISCORD_CLIENT_ID || "(missing)");
 console.log("DISCORD_CALLBACK_URL CLEAN:", DISCORD_CALLBACK_URL || "(missing)");
-console.log("ADMIN_DISCORD_IDS:", ADMIN_DISCORD_IDS);
 console.log("DISCORD_WEBHOOK_URL:", DISCORD_WEBHOOK_URL ? "(set)" : "(missing)");
 console.log("BRAND_LOGO_URL:", BRAND_LOGO_URL);
+console.log("ADMIN_DISCORD_IDS:", ADMIN_DISCORD_IDS);
 
 /* ============================= */
 /* MIDDLEWARE */
@@ -92,8 +94,15 @@ function clip(str, max = 1000) {
 async function sendDiscordWebhook(payload) {
   if (!DISCORD_WEBHOOK_URL) return;
 
+  // Render Node 22 má fetch, ale nech je to safe
+  const f = globalThis.fetch;
+  if (!f) {
+    console.log("Webhook: fetch not available. (Install node-fetch if needed)");
+    return;
+  }
+
   try {
-    const r = await fetch(DISCORD_WEBHOOK_URL, {
+    const r = await f(DISCORD_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -109,7 +118,7 @@ async function sendDiscordWebhook(payload) {
 }
 
 /* ============================= */
-/* DISCORD STRATEGY */
+/* DISCORD OAUTH */
 /* ============================= */
 const discordEnvOk = !!(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
 
@@ -124,7 +133,6 @@ if (!discordEnvOk) {
       scope: ['identify']
     },
     (accessToken, refreshToken, profile, done) => {
-      // default avatar
       const defaultAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(profile.discriminator) % 5}.png`;
       const avatarUrl = profile.avatar
         ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=128`
@@ -140,16 +148,19 @@ if (!discordEnvOk) {
 }
 
 /* ============================= */
-/* DISCORD AUTH ROUTES */
+/* AUTH ROUTES */
 /* ============================= */
-app.get('/auth/discord', (req, res, next) => {
-  if (!discordEnvOk) {
-    return res.status(500).send(
-      "Discord OAuth nie je nastavený. Skontroluj Render ENV: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_CALLBACK_URL."
-    );
-  }
-  next();
-}, passport.authenticate('discord'));
+app.get('/auth/discord',
+  (req, res, next) => {
+    if (!discordEnvOk) {
+      return res.status(500).send(
+        "Discord OAuth nie je nastavený. Skontroluj Render ENV: DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, DISCORD_CALLBACK_URL."
+      );
+    }
+    next();
+  },
+  passport.authenticate('discord')
+);
 
 app.get('/auth/discord/callback',
   passport.authenticate('discord', { failureRedirect: '/?tab=admin' }),
@@ -158,11 +169,9 @@ app.get('/auth/discord/callback',
 
 app.get('/auth/me', (req, res) => {
   const loggedIn = !!req.user;
-  const isAdmin = loggedIn && isAdminUser(req);
-
   res.json({
     loggedIn,
-    isAdmin,
+    isAdmin: loggedIn && isAdminUser(req),
     user: loggedIn ? {
       id: req.user.id,
       username: req.user.username,
@@ -176,13 +185,12 @@ app.get('/auth/me', (req, res) => {
 app.get('/auth/logout', (req, res) => {
   req.logout(() => {
     req.session?.destroy(() => {
-      res.clearCookie('fracture.sid');
+      // musí sedieť s "name: fracture.sid"
+      res.clearCookie('fracture.sid', { path: '/' });
       res.redirect('/?tab=admin');
     });
   });
 });
-
-// kompatibilita
 app.get('/logout', (req, res) => res.redirect('/auth/logout'));
 
 /* ============================= */
@@ -198,16 +206,24 @@ function readWL() {
     return [];
   }
 }
-
 function writeWL(data) {
   fs.writeFileSync(wlFile, JSON.stringify(data, null, 2));
 }
 
-/* 🟡 NEW WL (yellow) */
+/* ✅ WL iba pre prihlásených cez Discord */
 app.post('/api/whitelist', async (req, res) => {
-  const { Meno, Vek, Discord, DiscordId, Skusenosti, Preco } = req.body;
+  if (!req.user) {
+    return res.status(401).json({ success: false, error: 'Najprv sa prihlás cez Discord.' });
+  }
 
-  if (!Meno || !Vek || !Discord || !Skusenosti || !Preco) {
+  const { Meno, Vek, Skusenosti, Preco } = req.body;
+
+  // Discord údaje berieme z loginu
+  const discordUserId = String(req.user.id);
+  const discordTag = `${req.user.username}#${req.user.discriminator}`;
+  const avatarUrl = req.user.avatarUrl || req.user.defaultAvatarUrl || "";
+
+  if (!Meno || !Vek || !Skusenosti || !Preco) {
     return res.json({ success: false, error: 'Nevyplnené polia!' });
   }
 
@@ -215,8 +231,9 @@ app.post('/api/whitelist', async (req, res) => {
   wl.push({
     Meno,
     Vek,
-    Discord,
-    DiscordId,
+    Discord: discordTag,
+    DiscordId: discordUserId,
+    avatarUrl,
     Skusenosti,
     Preco,
     status: 'pending',
@@ -225,17 +242,18 @@ app.post('/api/whitelist', async (req, res) => {
 
   writeWL(wl);
 
+  // 🟡 webhook - nová WL
   await sendDiscordWebhook({
     username: "Fracture Roleplay WL",
     avatar_url: BRAND_LOGO_URL,
     embeds: [{
       title: "🟡 Nová whitelist žiadosť",
-      color: 0xF1C40F, // yellow
+      color: 0xF1C40F,
       fields: [
         { name: "Meno / Nick", value: clip(Meno, 1024), inline: true },
         { name: "Vek", value: clip(Vek, 1024), inline: true },
-        { name: "Discord", value: clip(Discord, 1024), inline: false },
-        { name: "Discord ID", value: clip(DiscordId || "-", 1024), inline: false },
+        { name: "Discord", value: clip(discordTag, 1024), inline: false },
+        { name: "Discord ID", value: clip(discordUserId, 1024), inline: false },
         { name: "Skúsenosti s RP", value: clip(Skusenosti, 1024), inline: false },
         { name: "Prečo sa chce pripojiť", value: clip(Preco, 1024), inline: false },
       ],
@@ -247,12 +265,15 @@ app.post('/api/whitelist', async (req, res) => {
   res.json({ success: true });
 });
 
-/* list */
+/* ✅ list žiadostí: iba admin */
 app.get('/api/whitelist', (req, res) => {
+  if (!isAdminUser(req)) {
+    return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
+  }
   res.json(readWL());
 });
 
-/* 🟢 approve / 🔴 reject + admin name */
+/* approve/reject iba admin + webhook farby + admin meno */
 app.post('/api/whitelist/action', async (req, res) => {
   if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
@@ -278,11 +299,11 @@ app.post('/api/whitelist/action', async (req, res) => {
 
   const statusEmoji = action === 'approve' ? "🟢" : "🔴";
   const statusText = action === 'approve' ? "SCHVÁLENÉ" : "ZAMIETNUTÉ";
-  const color = action === 'approve' ? 0x2ECC71 : 0xE74C3C; // green / red
+  const color = action === 'approve' ? 0x2ECC71 : 0xE74C3C;
 
   await sendDiscordWebhook({
     username: "Fracture Roleplay WL",
-    avatar_url: "https://fracture-web-let4.onrender.com/logo.png",
+    avatar_url: BRAND_LOGO_URL,
     embeds: [{
       title: `${statusEmoji} Whitelist ${statusText}`,
       color,
@@ -290,7 +311,7 @@ app.post('/api/whitelist/action', async (req, res) => {
         { name: "Meno / Nick", value: clip(wl[index].Meno, 1024), inline: true },
         { name: "Discord", value: clip(wl[index].Discord, 1024), inline: true },
         { name: "Status", value: statusText, inline: true },
-        { name: "Admin", value: clip(adminName, 1024), inline: false }
+        { name: "Admin", value: clip(adminName, 1024), inline: false },
       ],
       footer: { text: "Fracture Roleplay" },
       timestamp: new Date().toISOString(),
