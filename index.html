@@ -40,11 +40,7 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 .wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;padding:15px;}
 .wl-header{display:flex;justify-content:space-between;align-items:center;gap:16px;}
 .wl-user{display:flex;align-items:center;gap:12px;min-width:260px;}
-.wl-avatar{
-  width:46px;height:46px;border-radius:50%;
-  border:1px solid #333;object-fit:cover;flex:0 0 auto;
-  background:#222;
-}
+.wl-avatar{width:46px;height:46px;border-radius:50%;border:1px solid #333;object-fit:cover;flex:0 0 auto;background:#222;}
 .wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;line-height:1.1;}
 .wl-sub{color:#bbb;font-size:13px;margin-top:4px;}
 .status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;white-space:nowrap;}
@@ -54,18 +50,9 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 .ok{background:#16a34a;color:#fff;}
 .no{background:#dc2626;color:#fff;}
 
-/* Q/A style like screenshot */
-.qa-q{
-  margin-top:16px;
-  font-weight:900;
-  color:#ff4b5c;
-}
-.qa-a{
-  margin-top:8px;
-  color:#e9e9e9;
-  line-height:1.55;
-  white-space:pre-wrap;
-}
+/* Q/A style */
+.qa-q{margin-top:16px;font-weight:900;color:#ff4b5c;}
+.qa-a{margin-top:8px;color:#e9e9e9;line-height:1.55;white-space:pre-wrap;}
 
 /* Discord login UI */
 .discord-login-btn{
@@ -80,119 +67,151 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 .muted{color:#aaa;font-size:13px;margin-top:10px;}
 .me-row{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
 .me-avatar{width:36px;height:36px;border-radius:50%;border:1px solid #333;object-fit:cover;background:#222;}
+
+.notice{
+  background:#0f172a;
+  border:1px solid #1f2a44;
+  padding:12px 14px;
+  border-radius:10px;
+  margin-bottom:14px;
+}
+.notice b{color:#fff;}
+.notice .muted{margin-top:6px;}
 </style>
 </head>
 
 <body>
 
 <header>
-<img src="logo.png" class="logo">
-<div class="header-text">
-<h1>Fracture Roleplay</h1>
-<p>Vitaj na našom FiveM serveri</p>
-</div>
+  <img src="logo.png" class="logo">
+  <div class="header-text">
+    <h1>Fracture Roleplay</h1>
+    <p>Vitaj na našom FiveM serveri</p>
+  </div>
 </header>
 
 <nav>
-<a href="https://discord.gg/ZcjnQqvVcD" target="_blank" class="discord-btn">Discord</a>
-<div class="nav-center">
-<a class="active" onclick="showTab('home',this)">Domov</a>
-<a onclick="showTab('rules',this)">Pravidlá</a>
-<a onclick="showTab('whitelist',this)">Whitelist</a>
-<a onclick="showTab('admin',this)">Admin</a>
-</div>
+  <a href="https://discord.gg/ZcjnQqvVcD" target="_blank" class="discord-btn">Discord</a>
+  <div class="nav-center">
+    <a class="active" onclick="showTab('home',this)">Domov</a>
+    <a onclick="showTab('rules',this)">Pravidlá</a>
+    <a onclick="showTab('whitelist',this)">Whitelist</a>
+    <a onclick="showTab('admin',this)">Admin</a>
+  </div>
 </nav>
 
 <section id="home">
-<div class="card">
-<h2>O serveri</h2>
-Fracture RP je realistický RP server.
-</div>
+  <div class="card">
+    <h2>O serveri</h2>
+    Fracture RP je realistický RP server.
+  </div>
 </section>
 
 <section id="rules">
-<div class="card">
-<h2>Pravidlá</h2>
-<ul>
-<li>Rešpektuj ostatných</li>
-<li>Žiadne cheaty</li>
-<li>Dodržuj RP</li>
-</ul>
-</div>
+  <div class="card">
+    <h2>Pravidlá</h2>
+    <ul>
+      <li>Rešpektuj ostatných</li>
+      <li>Žiadne cheaty</li>
+      <li>Dodržuj RP</li>
+    </ul>
+  </div>
 </section>
 
 <section id="whitelist">
-<div class="card">
-<h2>Whitelist formulár</h2>
+  <div class="card">
+    <h2>Whitelist formulár</h2>
 
-<form id="wlForm">
+    <!-- WL LOGIN (zobrazi sa len keď NIE si prihlásený) -->
+    <div id="wlLoginNotice" class="notice" style="display:none;">
+      <b>Na odoslanie whitelistu sa musíš prihlásiť cez Discord.</b>
+      <div class="muted">Klikni na tlačidlo a po prihlásení sa sem vrátiš automaticky.</div>
+      <div style="margin-top:10px;">
+        <a href="/auth/discord" class="discord-login-btn">Prihlásiť cez Discord</a>
+      </div>
+    </div>
 
-<div class="wl-field">
-<label>Meno / Nick</label>
-<div class="wl-hint">Ako ťa budeme volať?</div>
-<input name="Meno" required>
-</div>
+    <!-- WL ME (zobrazi sa len keď SI prihlásený) -->
+    <div id="wlMeNotice" class="notice" style="display:none;">
+      <div class="me-row" style="margin:0;">
+        <img id="wlMeAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="me">
+        <div>
+          <div id="wlMeName" style="font-weight:bold;">Prihlásený</div>
+          <div class="muted" id="wlMeId"></div>
+        </div>
+        <div style="margin-left:auto;">
+          <button type="button" onclick="logoutAll()">Odhlásiť</button>
+        </div>
+      </div>
+    </div>
 
-<div class="wl-field">
-<label>Vek</label>
-<input name="Vek" type="number" required>
-</div>
+    <!-- WL FORM (zobrazi sa len keď SI prihlásený) -->
+    <form id="wlForm" style="display:none;">
 
-<div class="wl-field">
-<label>Discord</label>
-<input name="Discord" required placeholder="napr. doolbyxx">
-</div>
+      <div class="wl-field">
+        <label>Meno / Nick</label>
+        <div class="wl-hint">Ako ťa budeme volať?</div>
+        <input name="Meno" required>
+      </div>
 
-<div class="wl-field">
-<label>Discord ID</label>
-<div class="wl-hint">Discord → Settings → Advanced → Developer Mode ON → pravý klik na profil → Copy ID</div>
-<input name="DiscordId" required placeholder="napr. 123456789012345678">
-</div>
+      <div class="wl-field">
+        <label>Vek</label>
+        <input name="Vek" type="number" required>
+      </div>
 
-<div class="wl-field">
-<label>Zkušenosti s RP</label>
-<textarea name="Skusenosti" maxlength="1000" required></textarea>
-<div class="wl-count" id="c1">0/1000</div>
-</div>
+      <div class="wl-field">
+        <label>Discord (automaticky)</label>
+        <input id="wlDiscord" disabled placeholder="Pripoj sa cez Discord">
+      </div>
 
-<div class="wl-field">
-<label>Proč se chceš připojit</label>
-<textarea name="Preco" maxlength="1000" required></textarea>
-<div class="wl-count" id="c2">0/1000</div>
-</div>
+      <div class="wl-field">
+        <label>Discord ID (automaticky)</label>
+        <input id="wlDiscordId" disabled placeholder="Pripoj sa cez Discord">
+      </div>
 
-<button type="submit">Odoslať</button>
-</form>
-</div>
+      <div class="wl-field">
+        <label>Zkušenosti s RP</label>
+        <textarea name="Skusenosti" maxlength="1000" required></textarea>
+        <div class="wl-count" id="c1">0/1000</div>
+      </div>
+
+      <div class="wl-field">
+        <label>Proč se chceš připojit</label>
+        <textarea name="Preco" maxlength="1000" required></textarea>
+        <div class="wl-count" id="c2">0/1000</div>
+      </div>
+
+      <button id="wlSubmitBtn" type="submit">Odoslať</button>
+    </form>
+  </div>
 </section>
 
 <section id="admin">
-<div class="card">
-<h2>Admin Panel</h2>
+  <div class="card">
+    <h2>Admin Panel</h2>
 
-<!-- Discord OAuth login -->
-<div id="login">
-  <a href="/auth/discord" class="discord-login-btn">Prihlásiť cez Discord</a>
-  <p class="muted">Admin prístup má iba vybraný účet.</p>
-</div>
-
-<!-- Panel -->
-<div id="panel" style="display:none;">
-  <div class="me-row">
-    <img id="meAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="me">
-    <div>
-      <div id="meName" style="font-weight:bold;">Prihlásený</div>
-      <div class="muted" id="meTag"></div>
+    <!-- Discord OAuth login -->
+    <div id="login">
+      <a href="/auth/discord" class="discord-login-btn">Prihlásiť cez Discord</a>
+      <p class="muted">Admin prístup má iba vybraný účet.</p>
     </div>
-    <div style="margin-left:auto;">
-      <button onclick="logoutAdmin()">Odhlásiť</button>
+
+    <!-- Panel -->
+    <div id="panel" style="display:none;">
+      <div class="me-row">
+        <img id="meAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="me">
+        <div>
+          <div id="meName" style="font-weight:bold;">Prihlásený</div>
+          <div class="muted" id="meTag"></div>
+        </div>
+        <div style="margin-left:auto;">
+          <button type="button" onclick="logoutAll()">Odhlásiť</button>
+        </div>
+      </div>
+
+      <div id="requests"></div>
     </div>
   </div>
-
-  <div id="requests"></div>
-</div>
-
-</div>
 </section>
 
 <footer>© 2026 Fracture Roleplay</footer>
@@ -206,18 +225,6 @@ function showTab(id,el){
 }
 document.querySelectorAll("section")[0].style.display="block";
 
-/* WL SEND */
-document.getElementById("wlForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const data=Object.fromEntries(new FormData(e.target));
-  fetch("/api/whitelist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
-  .then(r=>r.json()).then(r=>{
-    if(r.success){alert("Odoslané");e.target.reset(); updateCountersNow(); }
-    else alert("Chyba: " + (r.error || "Nepodarilo sa odoslať"));
-  })
-  .catch(()=>alert("Chyba pripojenia na server"));
-});
-
 /* COUNTERS */
 function bindCounter(name,id,max){
   const t=document.querySelector(`textarea[name="${name}"]`);
@@ -229,14 +236,17 @@ function bindCounter(name,id,max){
 }
 bindCounter("Skusenosti","c1",1000);
 bindCounter("Preco","c2",1000);
-function updateCountersNow(){
-  const t1=document.querySelector(`textarea[name="Skusenosti"]`);
-  const t2=document.querySelector(`textarea[name="Preco"]`);
-  if(t1) document.getElementById("c1").textContent = t1.value.length + "/1000";
-  if(t2) document.getElementById("c2").textContent = t2.value.length + "/1000";
-}
 
-/* fallback avatar (lokálny) */
+/* HELPERS */
+function escapeHtml(v){
+  const s = String(v ?? "");
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 function getDiscordAvatar(req){
   const id = String(req.DiscordId || "").trim();
   if(!id) return "";
@@ -250,58 +260,116 @@ function pickAvatar(req){
   if(local) return local;
   return "https://cdn.discordapp.com/embed/avatars/0.png";
 }
-function escapeHtml(v){
-  const s = String(v ?? "");
-  return s
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
 
-/* DISCORD AUTH STATE */
+/* AUTH STATE */
+let AUTH = { loggedIn:false, isAdmin:false, user:null };
+
 async function refreshAuthUI(){
+  const login = document.getElementById("login");
+  const panel = document.getElementById("panel");
+
+  const wlLoginNotice = document.getElementById("wlLoginNotice");
+  const wlMeNotice = document.getElementById("wlMeNotice");
+  const wlForm = document.getElementById("wlForm");
+
   try{
     const r = await fetch("/auth/me", { credentials: "include" });
     const me = await r.json();
+    AUTH = me || { loggedIn:false, isAdmin:false, user:null };
 
-    const login = document.getElementById("login");
-    const panel = document.getElementById("panel");
+    // --- WL UI ---
+    if(AUTH.loggedIn){
+      wlLoginNotice.style.display = "none";
+      wlMeNotice.style.display = "block";
+      wlForm.style.display = "block";
 
-    if(me.loggedIn && me.isAdmin){
+      document.getElementById("wlMeName").textContent = AUTH.user?.username || "Prihlásený";
+      document.getElementById("wlMeId").textContent = AUTH.user?.id ? `ID: ${AUTH.user.id}` : "";
+
+      document.getElementById("wlDiscord").value =
+        AUTH.user?.username && AUTH.user?.discriminator
+          ? `${AUTH.user.username}#${AUTH.user.discriminator}`
+          : "Discord pripojený";
+
+      document.getElementById("wlDiscordId").value = AUTH.user?.id || "";
+
+      const avatar = AUTH.user?.avatarUrl || AUTH.user?.defaultAvatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
+      document.getElementById("wlMeAvatar").src = avatar;
+    } else {
+      wlLoginNotice.style.display = "block";
+      wlMeNotice.style.display = "none";
+      wlForm.style.display = "none";
+    }
+
+    // --- ADMIN UI ---
+    if(AUTH.loggedIn && AUTH.isAdmin){
       login.style.display = "none";
       panel.style.display = "block";
 
-      const name = me.user?.username || "Admin";
-      const discrim = me.user?.discriminator ? `#${me.user.discriminator}` : "";
-      document.getElementById("meName").textContent = name;
-      document.getElementById("meTag").textContent = me.user?.id ? `ID: ${me.user.id} ${discrim}` : "";
+      document.getElementById("meName").textContent = AUTH.user?.username || "Admin";
+      document.getElementById("meTag").textContent = AUTH.user?.id ? `ID: ${AUTH.user.id}` : "";
 
-      // avatar z OAuth profilu (ak je)
-      if(me.user?.id && me.user?.avatar){
-        document.getElementById("meAvatar").src =
-          `https://cdn.discordapp.com/avatars/${me.user.id}/${me.user.avatar}.png?size=64`;
-      } else {
-        document.getElementById("meAvatar").src = "https://cdn.discordapp.com/embed/avatars/0.png";
-      }
+      const avatar = AUTH.user?.avatarUrl || AUTH.user?.defaultAvatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
+      document.getElementById("meAvatar").src = avatar;
 
       loadRequests();
     } else {
-      // nie si admin alebo nie si prihlásený
       panel.style.display = "none";
       login.style.display = "block";
     }
+
   } catch(e){
-    // ak /auth/me neexistuje alebo server error
-    document.getElementById("panel").style.display = "none";
-    document.getElementById("login").style.display = "block";
+    wlLoginNotice.style.display = "block";
+    wlMeNotice.style.display = "none";
+    wlForm.style.display = "none";
+
+    panel.style.display = "none";
+    login.style.display = "block";
   }
 }
 
-function logoutAdmin(){
+function logoutAll(){
   window.location.href = "/auth/logout";
 }
+
+/* WL SEND (už iba pre prihlásených) */
+document.getElementById("wlForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+
+  if(!AUTH.loggedIn){
+    alert("Najprv sa prihlás cez Discord.");
+    return;
+  }
+
+  const data = Object.fromEntries(new FormData(e.target));
+  const payload = {
+    Meno: data.Meno,
+    Vek: data.Vek,
+    Skusenosti: data.Skusenosti,
+    Preco: data.Preco
+  };
+
+  try{
+    const r = await fetch("/api/whitelist",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      credentials: "include",
+      body:JSON.stringify(payload)
+    });
+    const res = await r.json();
+
+    if(res.success){
+      alert("Odoslané");
+      e.target.reset();
+      document.getElementById("c1").textContent = "0/1000";
+      document.getElementById("c2").textContent = "0/1000";
+    } else {
+      alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
+    }
+  } catch {
+    alert("Chyba pripojenia na server");
+  }
+});
 
 /* ADMIN LOAD */
 function loadRequests(){
@@ -311,7 +379,12 @@ function loadRequests(){
       const box=document.getElementById("requests");
       box.innerHTML="";
 
-      if(!Array.isArray(data) || data.length === 0){
+      if(!Array.isArray(data)){
+        box.innerHTML = `<p style="color:#bbb;">${escapeHtml(data?.error || "Nemáš prístup")}</p>`;
+        return;
+      }
+
+      if(data.length === 0){
         box.innerHTML = "<p style='color:#bbb;'>Žiadne žiadosti</p>";
         return;
       }
@@ -331,7 +404,7 @@ function loadRequests(){
                    onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
               <div>
                 <div class="wl-name">${escapeHtml(req.Meno)}</div>
-                <div class="wl-sub">Discord: ${escapeHtml(req.Discord)}</div>
+                <div class="wl-sub">Discord: ${escapeHtml(req.Discord || "-")}</div>
               </div>
             </div>
             <div class="status">${escapeHtml(req.status||"pending")}</div>
@@ -368,7 +441,6 @@ function loadRequests(){
     .catch(()=>alert("Nepodarilo sa načítať žiadosti"));
 }
 
-/* Approve/Reject - bez hesla, cez Discord session */
 function action(index,act){
   fetch("/api/whitelist/action",{
     method:"POST",
@@ -379,7 +451,7 @@ function action(index,act){
   .then(r=>r.json())
   .then(res=>{
     if(res.success) loadRequests();
-    else alert(res.error || "Nemáš prístup (prihlás sa cez Discord).");
+    else alert(res.error || "Nemáš prístup (prihlás sa ako admin).");
   })
   .catch(()=>alert("Chyba pripojenia na server"));
 }
@@ -388,10 +460,10 @@ function action(index,act){
 document.addEventListener("DOMContentLoaded", async ()=>{
   await refreshAuthUI();
 
-  // ak po Discord callbacku príde ?tab=admin, prepni
   const tab = new URLSearchParams(window.location.search).get("tab");
   if(tab){
-    const link = [...document.querySelectorAll(".nav-center a")].find(a => a.getAttribute("onclick")?.includes(tab));
+    const link = [...document.querySelectorAll(".nav-center a")]
+      .find(a => a.getAttribute("onclick")?.includes(tab));
     if(link) link.click();
   }
 });
