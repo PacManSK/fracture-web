@@ -1,518 +1,3 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fracture Roleplay</title>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:Arial;background:#0d0d0d;color:#fff;}
-
-/* HEADER */
-header{position:relative;background:linear-gradient(90deg,#1a1a1a,#111);text-align:center;padding:30px;}
-.logo{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:80px;}
-.header-text h1{font-size:48px;color:#ff4b5c;}
-.header-text p{color:#ccc;}
-
-/* NAV */
-nav{position:relative;background:#111;padding:15px 0;border-bottom:2px solid #222;display:flex;justify-content:center;}
-.discord-btn{position:absolute;left:20px;top:50%;transform:translateY(-50%);background:#5865F2;color:#fff;padding:8px 16px;border-radius:5px;text-decoration:none;font-weight:bold;}
-.nav-center{display:flex;gap:25px;}
-nav a{color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:4px;cursor:pointer;}
-nav a:hover{background:#ff4b5c;color:#000;}
-nav a.active{background:#ff4b5c;color:#000;}
-
-section{max-width:1000px;margin:40px auto;padding:20px;display:none;}
-.card{background:#111;padding:25px;border-radius:10px;border:1px solid #222;margin-bottom:25px;}
-h2{border-bottom:2px solid #ff4b5c;padding-bottom:10px;margin-bottom:15px;}
-input,textarea{width:100%;padding:12px;margin:8px 0;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:5px;}
-textarea{min-height:150px;}
-button{background:#ff4b5c;color:#000;border:none;padding:12px 20px;font-weight:bold;cursor:pointer;border-radius:5px;}
-footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;color:#ccc;}
-
-/* WL FORM */
-.wl-field{margin-bottom:20px;}
-.wl-hint{font-size:12px;color:#aaa;margin-bottom:5px;}
-.wl-count{font-size:12px;color:#bbb;text-align:right;}
-
-/* ADMIN CARD */
-.wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;padding:15px;}
-.wl-header{display:flex;justify-content:space-between;align-items:center;gap:16px;}
-.wl-user{display:flex;align-items:center;gap:12px;min-width:260px;}
-.wl-avatar{width:46px;height:46px;border-radius:50%;border:1px solid #333;object-fit:cover;flex:0 0 auto;background:#222;}
-.wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;line-height:1.1;}
-.wl-sub{color:#bbb;font-size:13px;margin-top:4px;}
-.status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;white-space:nowrap;}
-.wl-body{display:none;margin-top:14px;}
-.wl-card.open .wl-body{display:block;}
-.wl-actions{display:flex;gap:10px;margin-top:14px;}
-.ok{background:#16a34a;color:#fff;}
-.no{background:#dc2626;color:#fff;}
-
-/* Q/A style */
-.qa-q{margin-top:16px;font-weight:900;color:#ff4b5c;}
-.qa-a{margin-top:8px;color:#e9e9e9;line-height:1.55;white-space:pre-wrap;}
-
-/* Discord login UI */
-.discord-login-btn{
-  display:inline-block;
-  background:#5865F2;
-  color:#fff;
-  padding:10px 16px;
-  border-radius:6px;
-  text-decoration:none;
-  font-weight:bold;
-}
-.muted{color:#aaa;font-size:13px;margin-top:10px;}
-.me-row{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
-.me-avatar{width:36px;height:36px;border-radius:50%;border:1px solid #333;object-fit:cover;background:#222;}
-
-.notice{
-  background:#0f172a;
-  border:1px solid #1f2a44;
-  padding:12px 14px;
-  border-radius:10px;
-  margin-bottom:14px;
-}
-.notice b{color:#fff;}
-.notice .muted{margin-top:6px;}
-
-/* RULES styling (podnadpis + text) */
-.rules-meta{
-  color:#aaa;
-  font-size:13px;
-  margin-bottom:12px;
-}
-.rules-block{
-  background:#0f0f0f;
-  border:1px solid #222;
-  border-radius:10px;
-  padding:16px;
-  margin-top:14px;
-}
-.rules-sub{
-  font-size:18px;
-  font-weight:900;
-  color:#ff4b5c;
-  margin-bottom:10px;
-}
-.rules-text{
-  color:#e9e9e9;
-  line-height:1.7;
-  white-space:pre-wrap;
-}
-.rules-list{
-  margin-left:18px;
-}
-.rules-list li{
-  margin:6px 0;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <img src="logo.png" class="logo">
-  <div class="header-text">
-    <h1>Fracture Roleplay</h1>
-    <p>Vitaj na našom FiveM serveri</p>
-  </div>
-</header>
-
-<nav>
-  <a href="https://discord.gg/5HY5Sq8wKZ" target="_blank" class="discord-btn">Discord</a>
-  <div class="nav-center">
-    <a class="active" onclick="showTab('home',this)">Domov</a>
-    <a onclick="showTab('rules',this)">Pravidlá</a>
-    <a onclick="showTab('whitelist',this)">Whitelist</a>
-    <a onclick="showTab('admin',this)">Admin</a>
-  </div>
-</nav>
-
-<section id="home">
-  <div class="card">
-    <h2>O serveri</h2>
-    Fracture RP je realistický RP server.
-  </div>
-</section>
-
-<section id="rules">
-  <div class="card">
-    <h2>Pravidlá</h2>
-    <div class="rules-meta">Pravidla serveru Fracture Roleplay. Poslední úprava - 15.2.2026</div>
-
-    <div class="rules-block">
-      <div class="rules-sub">Základné pravidlá</div>
-      <ol class="rules-list">
-        <li>Fivem Gta RP je hra né realný život, ale simulace</li>
-        <li>10 minut před a po restartu je zakázáno zahajovat veškerou nelegální činnost.</li>
-        <li>Během administrátorského pozastavení RP akce je zakázáno pokračovat v RP.</li>
-        <li>V IC se řídíme podle reálného času.</li>
-        <li>Zákaz používání n-wordu. Je přísně zakázáno používat anglofonní rasistická slova (příklad “negr/nigga") i v případě, kdy všichni přítomní souhlasí s GrossRP. Je možné používat nadávky v lokálním jazyce</li>
-        <li>Při honičce s PD je přísně zakázáno uložit vozidlo do garáže a opustit hru do 10 minut po ujetí hlídkám, aby měli šanci Vás ještě najít.</li>
-        <li>Zákaz provokace státních složek bez pádného RP důvodu</li>
-        <li>Hráči, kteří nejsou členy státních a ozbrojených složek nemohou nosit uniformu, leda by se jednalo o RP důvod, který byl schválen adminem.</li>
-        <li>Zákaz používaní "combat-roll" - kotouly při potyčkách (bráno jako zneužívání mechaniky hry).</li>
-      </ol>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">Základní pojmy</div>
-      <div class="rules-text">Pojem roleplay je v podstatě hraní role s vlastním příběhem, který musí reflektovat dění a příběhy ostatních hráčů, se kterými přichází v otevřeném světě do rp akcie.
-
-OOC - Out Of Character
-Vystoupení z herní role. Situace, kdy hráč jedná, nebo popisuje situaci mimo svoji herní postavu.
-
-IC - In Character
-Hraní své role ve hře. Situace, kdy hráč jedná a interaguje v rámci své herní postavy.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">/ME</div>
-      <div class="rules-text">Popisuje určitou činnost, nálady, emoce a nahrazuje animace, které nelze provést přímo ve hře.
-Skloňujeme vždy v 3. osobě.
-
-Příklady:
-"/me zapne baterku a posvieti si na zem"
-"/me vytiahne lekárničku z batohu"
-
-Do /me je zakázáno psát své myšlenky</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">/DO</div>
-      <div class="rules-text">Slouží k popisu vykonání činnosti s očekáváním reakce nějakého hráče a k širšímu popisu situace a prostředí.
-V /do je zakázáno lhát.
-Hráči nemohou pomocí /do ovlivňovat RP ostatních hráčů, či psát /do za někoho jiného. Vždy každý popisuje svoji situaci.
-Do /do  je zakázáno psát své myšlenky.
-
-Příklad:
-/do Má osoba pri sebe zbraň? 2.osoba odpovie /do Ano nebo ne</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">/TRY</div>
-      <div class="rules-text">Slouží k náhodnému vygenerování ANO / NE. Obecně by mělo sloužit pouze k rozvinutí dané RP situace nikoliv k zvýhodnění hráče.
-/try je zakázáno používat při rozhodování zranění postav mimo přítomnosti EMS.
-/try je zakázáno používat v rámci Passive RP.
-
-Správné příklady:
-"/me zašívá mu ránu na rameni. /do povedlo se?, /try"</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">Non-RP Injuries</div>
-      <div class="rules-text">Definice
-Non-RP Injuries znamená nereálné chování postavy při zranění nebo ignorování utrpěných zranění.
-Hráč je povinen přizpůsobit své RP aktuálnímu zdravotnímu stavu postavy a reagovat na bolest, omezení pohybu nebo bezvědomí
-
-Příklady porušení pravidla
-Po zásahu brokovnicí pokračuje v boji bez omezení.
-Hráč nabourá ve vysoké rychlosti, auto se několikrát otočí a on okamžitě vystoupí a utíká pryč.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">METAGAMING</div>
-      <div class="rules-text">Metagaming je využívání informací, které hráč získal mimo RP napriklad ze streamu od streamera (OOC), ve hře (IC), aniž by je jeho postava mohla vědět přirozenou RP cestou.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">MIXING</div>
-      <div class="rules-text">Je míchání herních (IC) a mimoherních (OOC) informací do jedné komunikace nebo situace.
-IC chat slouží pouze pro RP a nesmí obsahovat OOC informace.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">POZNÁVÁNÍ HRÁČŮ</div>
-      <div class="rules-text">Poznávání hráčů dle hlasu, oblečení či vzhledu není možné, pokud jste s daným hráčem neměli dostatečnou interakci.
-Jako dostatečná interakce je brán vztah postav ( rodina, milenec, partner, kolega, apod.) nebo dlouhodobé RP mezi postavami.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">POWERGAMING</div>
-      <div class="rules-text">Powergaming je vynucování RP akce nebo výsledku bez možnosti reakce druhé strany, případně provádění nereálných akcí, které by v reálném životě nebyly možné.
-priklad: /me zvedá auto nad hlavu a hází ho</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">FEAR RP / JobFear / JailFear / GunFear</div>
-      <div class="rules-text">FearRP je povinnost hráče hrát strach o život své postavy v situacích, kde je postava ohrožena (např. mířená zbraň, přesila, únos, vážné zranění).
-Postava musí jednat realisticky a snažit se přežít.
-
-JobFear znamená, že postava sa musí báť o svoje zamestnanie, hodnosť a reputáciu.
-Hráč musí hrať realistické správanie voči nadriadeným a dodržiavať pracovné postupy, aby neprišiel o prácu.
-
-JailFear znamená, že postava sa musí báť väzenia a jeho následkov.
-Hráč musí hrať strach zo zatknutia, dlhého trestu alebo zhoršenia svojej situácie.
-
-GunFear je povinnost hráče hrát strach o život v situaci, kdy je na něj mířena střelná zbraň na krátkou vzdálenost a nemá reálnou šanci na obranu nebo útěk.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">PRAVIDLO INVENTÁŘE</div>
-      <div class="rules-text">Vše co máte v inventáři postavy, máte u sebe.
-Prohledávat inventář hráče je možné pouze v případě, že hráč zvedne ruce (defaultně X) a vzdá se vám.
-V případě prohledávání jiným hráčem není nutné prohledávání skrz inventář, je možné využít příkazy /me a /do.
-Hráč by u sebe měl vždy nosit reálné množství peněz, které by mohl unést.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">HRANÍ ZA PEDA (Zvíře-Teen)</div>
-      <div class="rules-text">Hráči mají možnost Rpit zvíře a teen peda (plemena psů).
-Zvířata se smí účastnit PVP, ovšem jen za použití /me, nikoliv pomocí mechaniky hry.
-Je zakázáno účelové zabíjení NPC lidí/psů vyjma divoké zvěře v přírodě.
-Poznávání osob dle čichu je povoleno pouze za předpokladu dlouhodobé interakce.
-Hráč má povinnost brát psa jako rovnocenného hráče RP tzn. vztahují se na něj veškerá pravidla, jako na klasickou postavu.
-
-Psi K-9 mohou:
-po obdržení povelu osobu držet tlamou (předloktí, stehno, lýtko atd.)
-stopovat, vyhledávat drogy a podobné ilegální věci
-
-Zákaz bugování animací.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">FAILRP</div>
-      <div class="rules-text">FailRP je jakékoliv nerealistické nebo nekvalitní hraní roleplaye, které porušuje logiku, pravidla serveru nebo kazí RP ostatním hráčům.
-troll v RP, nerespektování PassiveRP, FearRP atd.
-
-Při nošení hráče pomocí příkazu /carry je povinností hráče danou situaci RPit i pomocí /me a /do. Samostatné použití příkazu je bráno jako Fail RP.
-
-Použití offroad bugin a lodí pro fast-content nelegální činnosti (banky, klenotnictví, obchody, domy na vykrádání atp.) je bráno jako Fail RP.
-
-Je zakázáno okrádat PD bez RP důvodu, pouze za účelem získání PD výbavy.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">HRANÍ ZA VÍCE POSTAV</div>
-      <div class="rules-text">Každý hráč má v základu jednu postavu. Druhá a každá další postava je placená a pouze na schválení, které je uděleno adminem za následujících podmínek:
-K založení postavy by měl mít hráč dobrý důvod, který musí uvést do ticketu. Dále uvést cíl a základní popis příběhu postavy.
-Po schválení je možné si zakoupit slot na postavu.
-Druhá a každá další postava se musí vyhýbat střetu zájmů. (Příklad: být součástí dvou různých frakcí, které mají spor, nesmí být součástí stejné frakce, apod.)
-Zakládat si další postavy bez schválení AT se bere jako porušení pravidel i v případě zakoupení slotu postavy.
-Je zakázáno, aby hráč, který přišel o svou postavu (dostal CK), se vrátil s novou postavou, která má jakoukoliv vazbu k jeho předešlé postavě (příbuzenství, známost), neboť se jedná o nepovolený metagaming.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">LORE POSTAV / SERIÓZNÍ RP</div>
-      <div class="rules-text">Postava v RP představuje smyšlenou, ale reálnou osobu,která má na začátku pevně daný lore a vyvíjí na základě toho, co se jí v životě stane. Je třeba klást důraz na držení se loru, postavení a seriozitu postav.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">COMBATLOG</div>
-      <div class="rules-text">Po pádu / restartu serveru je nutné navázat na předešlou RP akci. Pokud jste se ocitli jinde, napište si in-game report a počkejte na reakci admina. V případě, že admin nereaguje, i tak jste nuceni pokračovat v předešlé RP akci. Není možné si sám skipovat RP akce.
-Cílené odpojení z RP akce bude bráno jako odmítání hraní RP scény.
-V případě že k odpojení dojde na základě technických potíží, je hráčova povinnost informovat AT nebo ostatní hráče v dané RP situaci.
-Odpojit se ze serveru po RP akci (např. přestřelce) je povoleno až po 10 minutách.Pokud se odpojíš dříve, považuje se to za combat log.Po uplynutí 15 minut se to už za combat log nepovažuje</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">COMBAT COMEBACK</div>
-      <div class="rules-text">Jestliže jste zapojeni v RP akci a zemřete, nemůžete se po jakémkoliv oživení připojit zpět do stejné RP akce.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">PASSIVE RP</div>
-      <div class="rules-text">Je potřeba si uvědomit, že veřejná prostranství jsou plná lidí, napr EMS,PD.
-Passive RP je nutné dodržovat i v případě, že se ve vašem okolí nenachází žádní hráči ani NPC.
-Je potřebné chápat a počítat s tím, že město žije i bez hráčů, tudíž vás na veřejných prostranstvích může kdokoliv vidět</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">DRŽENÍ OSOB</div>
-      <div class="rules-text">Maximální doba únosu jiné postavy je 45 minut realneho času . V případě potřeby prodloužení doby únosu z důvodu logiky RP se domluvte v OOC mezi sebou.
-Hráč nesmí být držen v CPZ déle jak 1h reálného času,predlženie len po schvalení AT. pokud hráči ze strany PD není zajištěna RP aktivita. Po vypršení daného limitu musí být hráč/i propuštěn/i z cely.
-Po dobu držení musíte dbát na to, aby váš rukojmí měl dostatek vody a jídla. Pokud tyto podmínky nebudou dodrženy, bude to bráno jako KOS.
-Hráč je povinen dobu trestu stanoveného PD či soudem aktivně oderpit. V případě, že si nemůže daný trest odsedět v rámci RP (např.: pokud je trest delší a hráč se musí odpojit), musí se domluvit s členem AT.
-Útěk z vězení není možný, leda by se jednalo o předem schválenou akci domluvenou s AT.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">VK / KOS / PK / CK</div>
-      <div class="rules-text">VK - VEHICLE KILL
-Jedná se o situaci, kdy vaše vozidlo utrpí neopravitelnou škodu a nelze jej opravit. Např. vozidlo vybouchne.
-Pokud chce hráč udělit VK jinému hráči, je potřeba schválení AT (ticket).
-Důvody pro VK:
-- Na jaké vozidlo
-- Screen s místem zanechání vozidla a popis, jak VK proběhne.
-- polití benzínem a zapálení, utopení, sešrotování atd.
-Pokud chcete udělit VK na vlastní vozidlo, není potřeba schválení AT. Je nutné si založit ticket a uvést stejné náležitosti jako u prvního bodu.
-
-KOS - KILL ON SIGHT
-Zabití hrače na první pohled bez předešlého RP a interakce.
-
-PK - PLAYER KILL
-Jedná se o situaci, kdy vaše postava utrpěla zranění a musí se nechat ošetřit kompetentní osobou (doktorem, záchranářem, v RP kvalifikovaným hráčem apod.,). Kompetentnost je posuzována podle rozsahu zranění.
-Lehká zranění jako odřeniny, škrábance či mělké řezné rány si je schopen hráč ošetřit sám.
-PK znamená dočasnou smrt postavy.
-Hráč si pamatuje vše až do momentu, než dostal PK.
-PK musí být oznámeno v LOOC.
-Od oznámení PK si hráč nic nepamatuje.
-Příklad:
-/me dá mu po hlavě tupým predmetom
-LOOC: PK
-
-CK - CHARACTER KILL
-CK je bráno jako definitivní smrt postavy.
-Každé CK musí být předem schváleno AT.
-CK je považováno za poslední možnost a musí mít silný a kvalitní RP důvod.
-Po provedení předem schváleného CK musí být oznámeno v LOOC ve tvaru "CK – INGAME jméno postavy”, aby CK bylo platné.
-V případě, že chcete CK udělit vlastní postavě, je nutno nechat si SelfCK schválit od AT.
-Žádost o CK pro jinou postavu je třeba vždy podložit dostatečným RP důvodem a dlouhodobým RP.
-Poškozený hráč se proti CK může odvolat v případě že má pocit že mu CK bylo uděleno neprávem.
-CK na členy AT se píše do soukromých zpráv nezávislým členům AT.
-Trest odnětí svobody na doživotí je považováno za CK postavy. Avšak soud tento rozsudek v RP uděluje jen za velmi závažných okolností.
-Po obdržení CK je zakázán návrat k nelegální činnosti s organizovanou skupinou osob, se kterou spolupracovala původní postava hráče.
-Situační CK lze udělit jinému hráči pouze v případě že k tomu má hráč dostatečný RP důvod. Jedná se např. o situace vraždy osoby blízké jíž je vaše postava přítomna atd.
-Pro udělení situačního CK je nutné oznámit provedení reportem a zároveň požádat o spectate celé situace. Po udělení je nutné vypsat ticket.
-V případě, že nikdo nereaguje na /report, je možne tak udělit situační CK. Neprodleně je však nutné založit ticket,vyplnit všechny náležitosti a podrobně uvést všechny důvody pro CK. V případě nedostatečného odůvodnění může být CK odvoláno.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">KRÁDEŽE AUT</div>
-      <div class="rules-text">Krádeže PD, EMS, a vládních vozidel jsou zakázány.Výjimka je možná pouze ve speciální RP situaci s kvalitním příběhovým důvodem.
-V takovém případě je nutné předem požádat A-Team, který bude situaci spectovat.
-Je zakázáno okrádat taxikáře ve službě bez adekvátního RP důvodu. Všechna vozidla taxislužby jsou vybavena kamerami.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">VYKRÁDÁNÍ</div>
-      <div class="rules-text">Vylupování je povoleno pouze při dodržení plného RP (roleplay) – žádné náhlé „RDM“ nebo akce „bez slova“. Před začátkem vylupování musí mít pachatel alespoň jednoho rukojmího (hráče). Výkupné za jednoho rukojmího je 10 000 $ (platí policie).
-Po vstupu na místo činu je povinnost počkat minimálně 5 minut na příjezd PD (policie),aby se stihla odehrát RP situace. Maximální částka hotovosti, kterou může pachatel ukrást od hráče, je 20 000$.
-Hráč nesmí být nucen RP cestou k výběru peněz z bankovního účtu
-Je zakázáno opakovaně vylupovat stejného hráče (minimálně 24 hodin odstup)
-Používání exploitů, bugů nebo OOC informací při vylupování je zakázáno.
-vyloupení musíte s únikovým vozidlem (auto nebo motorka) jezdit po městě ještě minimálně 10 minut, než ho odložíte nebo schováte.
-Po vykradnutí hráča nebo po spáchání trestné činnosti je zakázáno opustit server po dobu 30 minut.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">KOMUNIKACE S AT</div>
-      <div class="rules-text">S týmem ve hře komunikujte pouze pomocí příkazu /report, pokud člen týmu neurčí jinak.
-K řešení administrativních a developerských záležitostí slouží ticketový systém, který lze založit prostřednictvím Discordu.
-Je zakázáno v textové i hlasové komunikaci zesměšňovat, ponižovat, urážet či vyhrožovat členovi týmu.
-Rozhodnutí AT je konečné.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">STOP-RP</div>
-      <div class="rules-text">Admin Team má možnost pozastavit RP v případě řešení situace či jiných odůvodněných podnětů. Při pozastavení se neerpí a je v dané chvíli tzv. STOP-RP
-Admin Team má možnost pozastavit RP v případě řešení situace či jiných odůvodněných podnětů
-Při pozastavení se neerpí a je v dané chvíli tzv. STOP-RP. Spadá vždy pouze na lokaci, kde bylo pozastavení ze strany AT vyhlášeno
-Po odstartování RP se pokračuje podle rozhodnutí AT.</div>
-    </div>
-
-    <div class="rules-block">
-      <div class="rules-sub">ZÁVĚR</div>
-      <div class="rules-text">Všichni hráči jsou povinni znát pravidla, jejich porušení a neznalost se bude přísně trestat, při větších prohřešcích bude hráči udělen ban bez možnosti se odvolat.
-Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunity informováni.
-
-© 2026 Fracture Roleplay</div>
-    </div>
-
-  </div>
-</section>
-
-<section id="whitelist">
-  <div class="card">
-    <h2>Whitelist formulár</h2>
-
-    <!-- WL LOGIN (zobrazi sa len keď NIE si prihlásený) -->
-    <div id="wlLoginNotice" class="notice" style="display:none;">
-      <b>Na odoslanie whitelistu sa musíš prihlásiť cez Discord.</b>
-      <div class="muted">Klikni na tlačidlo a po prihlásení sa sem vrátiš automaticky.</div>
-      <div style="margin-top:10px;">
-        <a href="/auth/discord?next=whitelist" class="discord-login-btn">Prihlásiť cez Discord</a>
-      </div>
-    </div>
-
-    <!-- WL ME (zobrazi sa len keď SI prihlásený) -->
-    <div id="wlMeNotice" class="notice" style="display:none;">
-      <div class="me-row" style="margin:0;">
-        <img id="wlMeAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="me">
-        <div>
-          <div id="wlMeName" style="font-weight:bold;">Prihlásený</div>
-          <div class="muted" id="wlMeId"></div>
-        </div>
-        <div style="margin-left:auto;">
-          <button type="button" onclick="logoutAll()">Odhlásiť</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- WL FORM (zobrazi sa len keď SI prihlásený) -->
-    <form id="wlForm" style="display:none;">
-
-      <div class="wl-field">
-        <label>Meno / Nick</label>
-        <div class="wl-hint">Ako ťa budeme volať?</div>
-        <input name="Meno" required>
-      </div>
-
-      <div class="wl-field">
-        <label>Vek</label>
-        <input name="Vek" type="number" required>
-      </div>
-
-      <div class="wl-field">
-        <label>Discord (automaticky)</label>
-        <input id="wlDiscord" disabled placeholder="Pripoj sa cez Discord">
-      </div>
-
-      <div class="wl-field">
-        <label>Discord ID (automaticky)</label>
-        <input id="wlDiscordId" disabled placeholder="Pripoj sa cez Discord">
-      </div>
-
-      <div class="wl-field">
-        <label>Zkušenosti s RP</label>
-        <textarea name="Skusenosti" maxlength="1000" required></textarea>
-        <div class="wl-count" id="c1">0/1000</div>
-      </div>
-
-      <div class="wl-field">
-        <label>Proč se chceš připojit</label>
-        <textarea name="Preco" maxlength="1000" required></textarea>
-        <div class="wl-count" id="c2">0/1000</div>
-      </div>
-
-      <button id="wlSubmitBtn" type="submit">Odoslať</button>
-    </form>
-  </div>
-</section>
-
-<section id="admin">
-  <div class="card">
-    <h2>Admin Panel</h2>
-
-    <!-- Discord OAuth login -->
-    <div id="login">
-      <a href="/auth/discord?next=admin" class="discord-login-btn">Prihlásiť cez Discord</a>
-      <p class="muted">Admin prístup má iba vybraný účet.</p>
-    </div>
-
-    <!-- Panel -->
-    <div id="panel" style="display:none;">
-      <div class="me-row">
-        <img id="meAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="me">
-        <div>
-          <div id="meName" style="font-weight:bold;">Prihlásený</div>
-          <div class="muted" id="meTag"></div>
-        </div>
-        <div style="margin-left:auto;">
-          <button type="button" onclick="logoutAll()">Odhlásiť</button>
-        </div>
-      </div>
-
-      <div id="requests"></div>
-    </div>
-  </div>
-</section>
-
-<footer>© 2026 Fracture Roleplay</footer>
-
 <script>
 function showTab(id,el){
   document.querySelectorAll("section").forEach(s=>s.style.display="none");
@@ -638,6 +123,11 @@ document.getElementById("wlForm").addEventListener("submit", async (e)=>{
     return;
   }
 
+  const btn = document.getElementById("wlSubmitBtn");
+  btn.disabled = true;
+  const oldTxt = btn.textContent;
+  btn.textContent = "Odosielam...";
+
   const data = Object.fromEntries(new FormData(e.target));
   const payload = {
     Meno: data.Meno,
@@ -653,9 +143,9 @@ document.getElementById("wlForm").addEventListener("submit", async (e)=>{
       credentials: "include",
       body:JSON.stringify(payload)
     });
-    const res = await r.json();
+    const res = await r.json().catch(()=> ({}));
 
-    if(res.success){
+    if(r.ok && res.success){
       alert("Odoslané");
       e.target.reset();
       document.getElementById("c1").textContent = "0/1000";
@@ -665,6 +155,9 @@ document.getElementById("wlForm").addEventListener("submit", async (e)=>{
     }
   } catch {
     alert("Chyba pripojenia na server");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldTxt;
   }
 });
 
@@ -686,11 +179,12 @@ function loadRequests(){
         return;
       }
 
-      data.forEach((req,i)=>{
+      data.forEach((req)=>{
         const card=document.createElement("div");
         card.className="wl-card";
 
         const avatar = pickAvatar(req);
+        const reqId = String(req.id || "");
 
         card.innerHTML=`
           <div class="wl-header">
@@ -722,8 +216,8 @@ function loadRequests(){
           </div>
 
           <div class="wl-actions">
-            <button class="ok" onclick="action(${i},'approve')">Schváliť</button>
-            <button class="no" onclick="action(${i},'reject')">Zamietnuť</button>
+            <button class="ok" onclick="action('${escapeHtml(reqId)}','approve')">Schváliť</button>
+            <button class="no" onclick="action('${escapeHtml(reqId)}','reject')">Zamietnuť</button>
           </div>
         `;
 
@@ -738,12 +232,17 @@ function loadRequests(){
     .catch(()=>alert("Nepodarilo sa načítať žiadosti"));
 }
 
-function action(index,act){
+function action(id, act){
+  if(!id){
+    alert("Chyba: žiadosť nemá ID (skontroluj server ukladanie).");
+    return;
+  }
+
   fetch("/api/whitelist/action",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     credentials: "include",
-    body:JSON.stringify({index:index,action:act})
+    body:JSON.stringify({ id, action: act })
   })
   .then(r=>r.json())
   .then(res=>{
@@ -764,6 +263,3 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   }
 });
 </script>
-
-</body>
-</html>
