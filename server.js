@@ -1,4 +1,4 @@
-// server.js (FINAL - Render fix + Discord OAuth + WL + Admin)
+// server.js (FINAL – auto index.html detect + Discord OAuth + WL + Admin)
 
 const express = require('express');
 const fs = require('fs');
@@ -10,6 +10,24 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+/* ============================= */
+/* AUTO PUBLIC DIR DETECT */
+/* ============================= */
+const HERE = __dirname;
+const ROOT = path.join(__dirname, '..');
+
+const INDEX_HERE = path.join(HERE, 'index.html');
+const INDEX_ROOT = path.join(ROOT, 'index.html');
+
+const PUBLIC_DIR = fs.existsSync(INDEX_HERE)
+  ? HERE
+  : (fs.existsSync(INDEX_ROOT) ? ROOT : HERE);
+
+const INDEX_PATH = path.join(PUBLIC_DIR, 'index.html');
+
+console.log('[PUBLIC_DIR]', PUBLIC_DIR);
+console.log('[INDEX_PATH exists?]', fs.existsSync(INDEX_PATH));
 
 /* ============================= */
 /* ENV */
@@ -45,7 +63,7 @@ const SESSION_SECRET = String(process.env.SESSION_SECRET || 'fracture_secret_dev
 app.set('trust proxy', 1);
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(PUBLIC_DIR));
 
 app.use(session({
   secret: SESSION_SECRET,
@@ -56,7 +74,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: true, // Render HTTPS
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
@@ -68,10 +86,10 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 /* ============================= */
-/* ROOT ROUTE FIX (BIELA STRÁNKA) */
+/* ROOT ROUTE */
 /* ============================= */
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(INDEX_PATH);
 });
 
 /* ============================= */
@@ -192,7 +210,7 @@ app.get('/auth/logout', (req, res) => {
 /* ============================= */
 /* WHITELIST SYSTEM */
 /* ============================= */
-const wlFile = path.join(__dirname, 'whitelist.json');
+const wlFile = path.join(PUBLIC_DIR, 'whitelist.json');
 
 function readWL() {
   if (!fs.existsSync(wlFile)) return [];
@@ -246,25 +264,6 @@ app.post('/api/whitelist', async (req, res) => {
 
   writeWL(wl);
 
-  await sendDiscordWebhook({
-    username: "Fracture Roleplay WL",
-    avatar_url: BRAND_LOGO_URL,
-    embeds: [{
-      title: "🟡 Nová whitelist žiadosť",
-      color: 0xF1C40F,
-      fields: [
-        { name: "Meno / Nick", value: clip(Meno), inline: true },
-        { name: "Vek", value: clip(Vek), inline: true },
-        { name: "Discord", value: clip(discordTag) },
-        { name: "Discord ID", value: clip(discordUserId) },
-        { name: "Skúsenosti s RP", value: clip(Skusenosti) },
-        { name: "Prečo sa chce pripojiť", value: clip(Preco) }
-      ],
-      footer: { text: "Fracture Roleplay" },
-      timestamp: new Date().toISOString()
-    }]
-  });
-
   res.json({ success: true, id });
 });
 
@@ -294,6 +293,13 @@ app.post('/api/whitelist/action', async (req, res) => {
   writeWL(wl);
 
   res.json({ success: true });
+});
+
+/* ============================= */
+/* CATCH-ALL (SPA FIX) */
+/* ============================= */
+app.get('*', (req, res) => {
+  res.sendFile(INDEX_PATH);
 });
 
 /* ============================= */
