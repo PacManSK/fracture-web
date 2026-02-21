@@ -1,4 +1,4 @@
-// server.js (FINAL – auto index.html detect + Discord OAuth + WL + Admin)
+// server.js (FINAL – auto index.html detect + debug endpoints + Discord OAuth + WL + Admin)
 
 const express = require('express');
 const fs = require('fs');
@@ -34,7 +34,7 @@ console.log('[INDEX_PATH exists?]', fs.existsSync(INDEX_PATH));
 /* ============================= */
 const DISCORD_CLIENT_ID = String(process.env.DISCORD_CLIENT_ID || '').trim();
 const DISCORD_CLIENT_SECRET = String(process.env.DISCORD_CLIENT_SECRET || '').trim();
-const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '').replace(/[\r\n]/g,'').trim();
+const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '').replace(/[\r\n]/g, '').trim();
 
 const DISCORD_WEBHOOK_URL = String(process.env.DISCORD_WEBHOOK_URL || '').trim();
 
@@ -51,7 +51,7 @@ const DEFAULT_ADMIN_IDS = [
 ];
 
 const ADMIN_DISCORD_IDS = (String(process.env.ADMIN_DISCORD_IDS || '').trim()
-  ? String(process.env.ADMIN_DISCORD_IDS || '').split(',').map(s=>s.trim()).filter(Boolean)
+  ? String(process.env.ADMIN_DISCORD_IDS || '').split(',').map(s => s.trim()).filter(Boolean)
   : DEFAULT_ADMIN_IDS
 );
 
@@ -74,7 +74,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: true,
+    secure: true, // Render HTTPS
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
@@ -86,9 +86,21 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
 /* ============================= */
-/* ROOT ROUTE */
+/* ROOT + DEBUG */
 /* ============================= */
 app.get('/', (req, res) => {
+  res.sendFile(INDEX_PATH);
+});
+
+// Debug: ukáže, či server fakt vidí index a z akého priečinka servuje
+app.get('/__debug', (req, res) => {
+  res.type('text/plain').send(
+    `PUBLIC_DIR=${PUBLIC_DIR}\nINDEX_PATH=${INDEX_PATH}\nINDEX_EXISTS=${fs.existsSync(INDEX_PATH)}\n`
+  );
+});
+
+// Debug: naservuje index priamo
+app.get('/__debug/index', (req, res) => {
   res.sendFile(INDEX_PATH);
 });
 
@@ -122,7 +134,7 @@ async function sendDiscordWebhook(payload) {
     });
 
     if (!r.ok) {
-      const text = await r.text().catch(()=> "");
+      const text = await r.text().catch(() => "");
       console.log("Webhook error:", r.status, text);
     }
   } catch (e) {
@@ -144,7 +156,6 @@ if (discordEnvOk) {
       scope: ['identify']
     },
     (accessToken, refreshToken, profile, done) => {
-
       const discNum = Number(profile.discriminator || 0);
       const defaultAvatar = `https://cdn.discordapp.com/embed/avatars/${discNum % 5}.png`;
 
@@ -155,9 +166,12 @@ if (discordEnvOk) {
       profile.avatarUrl = avatarUrl;
       profile.defaultAvatarUrl = defaultAvatar;
 
+      console.log("Discord login OK:", profile.username, profile.id);
       return done(null, profile);
     }
   ));
+} else {
+  console.log("⚠️ Discord OAuth is DISABLED (missing ENV).");
 }
 
 /* ============================= */
@@ -214,14 +228,18 @@ const wlFile = path.join(PUBLIC_DIR, 'whitelist.json');
 
 function readWL() {
   if (!fs.existsSync(wlFile)) return [];
-  try { return JSON.parse(fs.readFileSync(wlFile, 'utf8') || '[]'); }
-  catch { return []; }
+  try {
+    return JSON.parse(fs.readFileSync(wlFile, 'utf8') || '[]');
+  } catch {
+    return [];
+  }
 }
 
 function writeWL(data) {
   fs.writeFileSync(wlFile, JSON.stringify(data, null, 2));
 }
 
+/* WL iba pre prihlásených */
 app.post('/api/whitelist', async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ success: false, error: 'Najprv sa prihlás cez Discord.' });
@@ -236,7 +254,6 @@ app.post('/api/whitelist', async (req, res) => {
   const wl = readWL();
 
   const discordUserId = String(req.user.id);
-
   const alreadyPending = wl.find(x =>
     String(x.DiscordId) === discordUserId && String(x.status) === 'pending'
   );
@@ -245,7 +262,6 @@ app.post('/api/whitelist', async (req, res) => {
   }
 
   const id = crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(16).toString('hex');
-
   const discordTag = `${req.user.username}#${req.user.discriminator}`;
   const avatarUrl = req.user.avatarUrl || req.user.defaultAvatarUrl || "";
 
@@ -264,9 +280,29 @@ app.post('/api/whitelist', async (req, res) => {
 
   writeWL(wl);
 
+  await sendDiscordWebhook({
+    username: "Fracture Roleplay WL",
+    avatar_url: BRAND_LOGO_URL,
+    embeds: [{
+      title: "🟡 Nová whitelist žiadosť",
+      color: 0xF1C40F,
+      fields: [
+        { name: "Meno / Nick", value: clip(Meno, 1024), inline: true },
+        { name: "Vek", value: clip(Vek, 1024), inline: true },
+        { name: "Discord", value: clip(discordTag, 1024), inline: false },
+        { name: "Discord ID", value: clip(discordUserId, 1024), inline: false },
+        { name: "Skúsenosti s RP", value: clip(Skusenosti, 1024), inline: false },
+        { name: "Prečo sa chce pripojiť", value: clip(Preco, 1024), inline: false },
+      ],
+      footer: { text: "Fracture Roleplay" },
+      timestamp: new Date().toISOString(),
+    }]
+  });
+
   res.json({ success: true, id });
 });
 
+/* list žiadostí: iba admin */
 app.get('/api/whitelist', (req, res) => {
   if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
@@ -274,14 +310,18 @@ app.get('/api/whitelist', (req, res) => {
   res.json(readWL());
 });
 
+/* approve/reject: iba admin, podľa ID */
 app.post('/api/whitelist/action', async (req, res) => {
   if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
   }
 
   const { id, action } = req.body;
-  const wl = readWL();
+  if (!id || (action !== 'approve' && action !== 'reject')) {
+    return res.status(400).json({ success: false, error: 'Zlé dáta (id/action).' });
+  }
 
+  const wl = readWL();
   const idx = wl.findIndex(x => String(x.id) === String(id));
   if (idx === -1) {
     return res.status(404).json({ success: false, error: 'Neexistujúca žiadosť' });
@@ -289,7 +329,6 @@ app.post('/api/whitelist/action', async (req, res) => {
 
   wl[idx].status = (action === 'approve') ? 'approved' : 'rejected';
   wl[idx].updatedAt = new Date().toISOString();
-
   writeWL(wl);
 
   res.json({ success: true });

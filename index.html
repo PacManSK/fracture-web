@@ -1,3 +1,217 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fracture Roleplay</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:#0d0d0d;color:#fff;}
+
+/* HEADER */
+header{position:relative;background:linear-gradient(90deg,#1a1a1a,#111);text-align:center;padding:30px;}
+.logo{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:80px;}
+.header-text h1{font-size:48px;color:#ff4b5c;}
+.header-text p{color:#ccc;}
+
+/* NAV */
+nav{position:relative;background:#111;padding:15px 0;border-bottom:2px solid #222;display:flex;justify-content:center;}
+.discord-btn{position:absolute;left:20px;top:50%;transform:translateY(-50%);background:#5865F2;color:#fff;padding:8px 16px;border-radius:5px;text-decoration:none;font-weight:bold;}
+.nav-center{display:flex;gap:25px;}
+nav a{color:#fff;text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:4px;cursor:pointer;}
+nav a:hover{background:#ff4b5c;color:#000;}
+nav a.active{background:#ff4b5c;color:#000;}
+
+section{max-width:1000px;margin:40px auto;padding:20px;display:none;}
+.card{background:#111;padding:25px;border-radius:10px;border:1px solid #222;margin-bottom:25px;}
+h2{border-bottom:2px solid #ff4b5c;padding-bottom:10px;margin-bottom:15px;}
+input,textarea{width:100%;padding:12px;margin:8px 0;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:5px;}
+textarea{min-height:150px;}
+button{background:#ff4b5c;color:#000;border:none;padding:12px 20px;font-weight:bold;cursor:pointer;border-radius:5px;}
+footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;color:#ccc;}
+
+.rules-meta{color:#aaa;font-size:13px;margin-bottom:12px;}
+.rules-block{background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:16px;margin-top:14px;}
+.rules-sub{font-size:18px;font-weight:900;color:#ff4b5c;margin-bottom:10px;}
+.rules-text{color:#e9e9e9;line-height:1.7;white-space:pre-wrap;}
+.rules-list{margin-left:18px;}
+.rules-list li{margin:6px 0;}
+
+.wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;padding:15px;}
+.wl-header{display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.wl-user{display:flex;align-items:center;gap:12px;min-width:260px;}
+.wl-avatar{width:46px;height:46px;border-radius:50%;border:1px solid #333;object-fit:cover;background:#222;}
+.wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;}
+.wl-sub{color:#bbb;font-size:13px;margin-top:4px;}
+.status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;}
+
+.notice{background:#0f172a;border:1px solid #1f2a44;padding:12px 14px;border-radius:10px;margin-bottom:14px;}
+.discord-login-btn{display:inline-block;background:#5865F2;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;font-weight:bold;}
+.me-row{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
+.me-avatar{width:36px;height:36px;border-radius:50%;border:1px solid #333;object-fit:cover;background:#222;}
+.muted{color:#aaa;font-size:13px;margin-top:10px;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <img src="/logo.png" class="logo" alt="Fracture Roleplay" onerror="this.style.display='none'">
+  <div class="header-text">
+    <h1>Fracture Roleplay</h1>
+    <p>Vitaj na našom FiveM serveri</p>
+  </div>
+</header>
+
+<nav>
+  <a href="https://discord.gg/5HY5Sq8wKZ" target="_blank" class="discord-btn">Discord</a>
+  <div class="nav-center">
+    <a class="active" onclick="showTab('home',this)">Domov</a>
+    <a onclick="showTab('rules',this)">Pravidlá</a>
+    <a onclick="showTab('whitelist',this)">Whitelist</a>
+    <a onclick="showTab('admin',this)">Admin</a>
+  </div>
+</nav>
+
+<section id="home">
+  <div class="card">
+    <h2>O serveri</h2>
+    Fracture RP je realistický RP server.
+  </div>
+</section>
+
+<section id="rules">
+  <div class="card">
+    <h2>Pravidlá</h2>
+    <div class="rules-meta">Pravidla serveru Fracture Roleplay. Poslední úprava - 15.2.2026</div>
+
+    <div class="rules-block">
+      <div class="rules-sub">Základné pravidlá</div>
+      <ol class="rules-list">
+        <li>Fivem Gta RP je hra né realný život, ale simulace</li>
+        <li>10 minut před a po restartu je zakázáno zahajovat veškerou nelegální činnost.</li>
+        <li>Během administrátorského pozastavení RP akce je zakázáno pokračovat v RP.</li>
+        <li>V IC se řídíme podle reálného času.</li>
+        <li>Zákaz používání n-wordu...</li>
+        <li>Při honičce s PD je přísně zakázáno uložit vozidlo do garáže...</li>
+        <li>Zákaz provokace státních složek bez pádného RP důvodu</li>
+        <li>Hráči bez státní složky nesmí nosit uniformu bez schválení adminem.</li>
+        <li>Zákaz používaní combat-roll.</li>
+      </ol>
+    </div>
+
+    <div class="rules-block">
+      <div class="rules-sub">Základní pojmy</div>
+      <div class="rules-text">
+OOC - Out Of Character
+IC - In Character
+
+/ME – popisuje činnosť postavy (bez myšlienok)
+/DO – popis prostredia a otázky (nesmie sa klamať)
+/TRY – náhodné ANO/NE, nesmie zvýhodniť hráča
+      </div>
+    </div>
+
+    <div class="rules-block">
+      <div class="rules-sub">Metagaming / Mixing / Powergaming</div>
+      <div class="rules-text">
+Metagaming – použitie OOC info v IC.
+Mixing – miešanie IC a OOC.
+Powergaming – vynucovanie akcie bez možnosti reakcie.
+      </div>
+    </div>
+
+    <div class="rules-block">
+      <div class="rules-sub">FearRP / JobFear / JailFear / GunFear</div>
+      <div class="rules-text">
+Postava musí hrať strach o život, prácu, väzenie a zbraň realisticky.
+      </div>
+    </div>
+
+    <div class="rules-block">
+      <div class="rules-sub">CK / PK / KOS / VK</div>
+      <div class="rules-text">
+CK – trvalá smrť postavy (schvaľuje AT)
+PK – dočasná smrť, strata pamäte
+KOS – zabitie bez RP
+VK – zničenie vozidla
+      </div>
+    </div>
+
+    <div class="rules-block">
+      <div class="rules-sub">Záver</div>
+      <div class="rules-text">
+Všichni hráči jsou povinni znát pravidla.
+© 2026 Fracture Roleplay
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="whitelist">
+  <div class="card">
+    <h2>Whitelist formulár</h2>
+
+    <div id="wlLoginNotice" class="notice" style="display:none;">
+      <b>Na odoslanie whitelistu sa musíš prihlásiť cez Discord.</b>
+      <div class="muted">Klikni na tlačidlo a po prihlásení sa sem vrátiš automaticky.</div>
+      <div style="margin-top:10px;">
+        <a href="/auth/discord?next=whitelist" class="discord-login-btn">Prihlásiť cez Discord</a>
+      </div>
+    </div>
+
+    <div id="wlMeNotice" class="notice" style="display:none;">
+      <div class="me-row" style="margin:0;">
+        <img id="wlMeAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png">
+        <div>
+          <div id="wlMeName" style="font-weight:bold;">Prihlásený</div>
+          <div class="muted" id="wlMeId"></div>
+        </div>
+        <div style="margin-left:auto;">
+          <button type="button" onclick="logoutAll()">Odhlásiť</button>
+        </div>
+      </div>
+    </div>
+
+    <form id="wlForm" style="display:none;">
+      <input name="Meno" placeholder="Meno / Nick" required>
+      <input name="Vek" type="number" placeholder="Vek" required>
+      <input id="wlDiscord" disabled placeholder="Discord">
+      <input id="wlDiscordId" disabled placeholder="Discord ID">
+      <textarea name="Skusenosti" placeholder="Zkušenosti s RP" maxlength="1000" required></textarea>
+      <textarea name="Preco" placeholder="Proč se chceš připojit" maxlength="1000" required></textarea>
+      <button id="wlSubmitBtn" type="submit">Odoslať</button>
+    </form>
+  </div>
+</section>
+
+<section id="admin">
+  <div class="card">
+    <h2>Admin Panel</h2>
+    <div id="login">
+      <a href="/auth/discord?next=admin" class="discord-login-btn">Prihlásiť cez Discord</a>
+      <p class="muted">Admin prístup má iba vybraný účet.</p>
+    </div>
+    <div id="panel" style="display:none;">
+      <div class="me-row">
+        <img id="meAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png">
+        <div>
+          <div id="meName" style="font-weight:bold;">Prihlásený</div>
+          <div class="muted" id="meTag"></div>
+        </div>
+        <div style="margin-left:auto;">
+          <button type="button" onclick="logoutAll()">Odhlásiť</button>
+        </div>
+      </div>
+      <div id="requests"></div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Fracture Roleplay</footer>
+
 <script>
 function showTab(id,el){
   document.querySelectorAll("section").forEach(s=>s.style.display="none");
@@ -7,259 +221,33 @@ function showTab(id,el){
 }
 document.querySelectorAll("section")[0].style.display="block";
 
-/* COUNTERS */
-function bindCounter(name,id,max){
-  const t=document.querySelector(`textarea[name="${name}"]`);
-  const c=document.getElementById(id);
-  if(!t||!c)return;
-  const update = ()=> c.textContent = t.value.length + "/" + max;
-  t.addEventListener("input", update);
-  update();
-}
-bindCounter("Skusenosti","c1",1000);
-bindCounter("Preco","c2",1000);
-
-/* HELPERS */
-function escapeHtml(v){
-  const s = String(v ?? "");
-  return s
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-function getDiscordAvatar(req){
-  const id = String(req.DiscordId || "").trim();
-  if(!id) return "";
-  const idx = Number(id.slice(-1)) % 5;
-  return `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
-}
-function pickAvatar(req){
-  if(req && req.avatarUrl) return req.avatarUrl;
-  if(req && req.defaultAvatarUrl) return req.defaultAvatarUrl;
-  const local = getDiscordAvatar(req);
-  if(local) return local;
-  return "https://cdn.discordapp.com/embed/avatars/0.png";
-}
-
-/* AUTH STATE */
-let AUTH = { loggedIn:false, isAdmin:false, user:null };
-
-async function refreshAuthUI(){
-  const login = document.getElementById("login");
-  const panel = document.getElementById("panel");
-
-  const wlLoginNotice = document.getElementById("wlLoginNotice");
-  const wlMeNotice = document.getElementById("wlMeNotice");
-  const wlForm = document.getElementById("wlForm");
-
-  try{
-    const r = await fetch("/auth/me", { credentials: "include" });
-    const me = await r.json();
-    AUTH = me || { loggedIn:false, isAdmin:false, user:null };
-
-    // --- WL UI ---
-    if(AUTH.loggedIn){
-      wlLoginNotice.style.display = "none";
-      wlMeNotice.style.display = "block";
-      wlForm.style.display = "block";
-
-      document.getElementById("wlMeName").textContent = AUTH.user?.username || "Prihlásený";
-      document.getElementById("wlMeId").textContent = AUTH.user?.id ? `ID: ${AUTH.user.id}` : "";
-
-      document.getElementById("wlDiscord").value =
-        AUTH.user?.username && AUTH.user?.discriminator
-          ? `${AUTH.user.username}#${AUTH.user.discriminator}`
-          : "Discord pripojený";
-
-      document.getElementById("wlDiscordId").value = AUTH.user?.id || "";
-
-      const avatar = AUTH.user?.avatarUrl || AUTH.user?.defaultAvatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
-      document.getElementById("wlMeAvatar").src = avatar;
-    } else {
-      wlLoginNotice.style.display = "block";
-      wlMeNotice.style.display = "none";
-      wlForm.style.display = "none";
-    }
-
-    // --- ADMIN UI ---
-    if(AUTH.loggedIn && AUTH.isAdmin){
-      login.style.display = "none";
-      panel.style.display = "block";
-
-      document.getElementById("meName").textContent = AUTH.user?.username || "Admin";
-      document.getElementById("meTag").textContent = AUTH.user?.id ? `ID: ${AUTH.user.id}` : "";
-
-      const avatar = AUTH.user?.avatarUrl || AUTH.user?.defaultAvatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
-      document.getElementById("meAvatar").src = avatar;
-
-      loadRequests();
-    } else {
-      panel.style.display = "none";
-      login.style.display = "block";
-    }
-
-  } catch(e){
-    wlLoginNotice.style.display = "block";
-    wlMeNotice.style.display = "none";
-    wlForm.style.display = "none";
-
-    panel.style.display = "none";
-    login.style.display = "block";
-  }
-}
-
-function logoutAll(){
-  window.location.href = "/auth/logout";
-}
-
-/* WL SEND */
-document.getElementById("wlForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-
-  if(!AUTH.loggedIn){
-    alert("Najprv sa prihlás cez Discord.");
-    return;
-  }
-
-  const btn = document.getElementById("wlSubmitBtn");
-  btn.disabled = true;
-  const oldTxt = btn.textContent;
-  btn.textContent = "Odosielam...";
-
-  const data = Object.fromEntries(new FormData(e.target));
-  const payload = {
-    Meno: data.Meno,
-    Vek: data.Vek,
-    Skusenosti: data.Skusenosti,
-    Preco: data.Preco
-  };
-
-  try{
-    const r = await fetch("/api/whitelist",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      credentials: "include",
-      body:JSON.stringify(payload)
-    });
-    const res = await r.json().catch(()=> ({}));
-
-    if(r.ok && res.success){
-      alert("Odoslané");
-      e.target.reset();
-      document.getElementById("c1").textContent = "0/1000";
-      document.getElementById("c2").textContent = "0/1000";
-    } else {
-      alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
-    }
-  } catch {
-    alert("Chyba pripojenia na server");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = oldTxt;
-  }
-});
-
-/* ADMIN LOAD */
-function loadRequests(){
-  fetch("/api/whitelist", { credentials: "include" })
-    .then(r=>r.json())
-    .then(data=>{
-      const box=document.getElementById("requests");
-      box.innerHTML="";
-
-      if(!Array.isArray(data)){
-        box.innerHTML = `<p style="color:#bbb;">${escapeHtml(data?.error || "Nemáš prístup")}</p>`;
-        return;
-      }
-
-      if(data.length === 0){
-        box.innerHTML = "<p style='color:#bbb;'>Žiadne žiadosti</p>";
-        return;
-      }
-
-      data.forEach((req)=>{
-        const card=document.createElement("div");
-        card.className="wl-card";
-
-        const avatar = pickAvatar(req);
-        const reqId = String(req.id || "");
-
-        card.innerHTML=`
-          <div class="wl-header">
-            <div class="wl-user">
-              <img class="wl-avatar"
-                   src="${escapeHtml(avatar)}"
-                   alt="avatar"
-                   onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-              <div>
-                <div class="wl-name">${escapeHtml(req.Meno)}</div>
-                <div class="wl-sub">Discord: ${escapeHtml(req.Discord || "-")}</div>
-              </div>
-            </div>
-            <div class="status">${escapeHtml(req.status||"pending")}</div>
-          </div>
-
-          <div class="wl-body">
-            <div class="qa-q">Věk:</div>
-            <div class="qa-a">${escapeHtml(req.Vek)} let</div>
-
-            <div class="qa-q">Discord ID:</div>
-            <div class="qa-a">${escapeHtml(req.DiscordId || "-")}</div>
-
-            <div class="qa-q">Zkušenosti s RP:</div>
-            <div class="qa-a">${escapeHtml(req.Skusenosti)}</div>
-
-            <div class="qa-q">Proč se chce připojit:</div>
-            <div class="qa-a">${escapeHtml(req.Preco)}</div>
-          </div>
-
-          <div class="wl-actions">
-            <button class="ok" onclick="action('${escapeHtml(reqId)}','approve')">Schváliť</button>
-            <button class="no" onclick="action('${escapeHtml(reqId)}','reject')">Zamietnuť</button>
-          </div>
-        `;
-
-        card.addEventListener("click",(e)=>{
-          if(e.target.tagName.toLowerCase()==="button") return;
-          card.classList.toggle("open");
-        });
-
-        box.appendChild(card);
-      });
-    })
-    .catch(()=>alert("Nepodarilo sa načítať žiadosti"));
-}
-
-function action(id, act){
-  if(!id){
-    alert("Chyba: žiadosť nemá ID (skontroluj server ukladanie).");
-    return;
-  }
-
-  fetch("/api/whitelist/action",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    credentials: "include",
-    body:JSON.stringify({ id, action: act })
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.success) loadRequests();
-    else alert(res.error || "Nemáš prístup (prihlás sa ako admin).");
-  })
-  .catch(()=>alert("Chyba pripojenia na server"));
-}
+function logoutAll(){ window.location.href="/auth/logout"; }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
-  await refreshAuthUI();
+  const r = await fetch("/auth/me",{credentials:"include"});
+  const me = await r.json();
 
-  const tab = new URLSearchParams(window.location.search).get("tab");
-  if(tab){
-    const link = [...document.querySelectorAll(".nav-center a")]
-      .find(a => a.getAttribute("onclick")?.includes(tab));
-    if(link) link.click();
+  if(me.loggedIn){
+    document.getElementById("wlLoginNotice").style.display="none";
+    document.getElementById("wlMeNotice").style.display="block";
+    document.getElementById("wlForm").style.display="block";
+
+    document.getElementById("wlMeName").textContent = me.user.username;
+    document.getElementById("wlMeId").textContent = "ID: "+me.user.id;
+    document.getElementById("wlDiscord").value = me.user.username+"#"+me.user.discriminator;
+    document.getElementById("wlDiscordId").value = me.user.id;
+    document.getElementById("wlMeAvatar").src = me.user.avatarUrl;
+  }
+
+  if(me.loggedIn && me.isAdmin){
+    document.getElementById("login").style.display="none";
+    document.getElementById("panel").style.display="block";
+    document.getElementById("meName").textContent = me.user.username;
+    document.getElementById("meTag").textContent = "ID: "+me.user.id;
+    document.getElementById("meAvatar").src = me.user.avatarUrl;
   }
 });
 </script>
+
+</body>
+</html>
