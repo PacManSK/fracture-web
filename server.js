@@ -1,4 +1,4 @@
-// server.js (FINAL – auto index.html detect + debug endpoints + Discord OAuth + WL + Admin)
+// server.js (FINAL – Fly/Render ready + Discord OAuth + WL + Admin + Webhooks)
 
 const express = require('express');
 const fs = require('fs');
@@ -41,7 +41,7 @@ const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
 const DISCORD_WEBHOOK_URL = String(process.env.DISCORD_WEBHOOK_URL || '').trim();
 
 const BRAND_LOGO_URL = String(
-  process.env.BRAND_LOGO_URL || 'https://fracture-web-let4.onrender.com/logo.png'
+  process.env.BRAND_LOGO_URL || 'https://fracture-web.fly.dev/logo.png'
 ).trim();
 
 const DEFAULT_ADMIN_IDS = [
@@ -76,7 +76,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    // v produkcii (Render) bude secure, lokálne nie (inak sa session rozbije na http)
+    // Fly/Render prod je https → secure true, lokálne http → false
     secure: process.env.NODE_ENV === 'production',
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
@@ -95,7 +95,6 @@ app.get('/', (req, res) => {
   res.sendFile(INDEX_PATH);
 });
 
-// Debug: ukáže, či server fakt vidí index a z akého priečinka servuje
 app.get('/__debug', (req, res) => {
   res.type('text/plain').send(
     `PUBLIC_DIR=${PUBLIC_DIR}\nINDEX_PATH=${INDEX_PATH}\nINDEX_EXISTS=${fs.existsSync(INDEX_PATH)}\n` +
@@ -104,7 +103,6 @@ app.get('/__debug', (req, res) => {
   );
 });
 
-// Debug: naservuje index priamo
 app.get('/__debug/index', (req, res) => {
   res.sendFile(INDEX_PATH);
 });
@@ -193,12 +191,10 @@ app.get('/auth/discord', (req, res, next) => {
   // 🔒 ANTI-SPAM LOCK (max 1 pokus za 5 sekúnd)
   const now = Date.now();
   const last = Number(req.session.lastDiscordAuthAt || 0);
-
   if (now - last < 5000) {
     console.log("Discord auth blocked (too fast)");
     return res.status(429).send("Prihlasuješ sa príliš rýchlo. Skús o chvíľu.");
   }
-
   req.session.lastDiscordAuthAt = now;
 
   const nextTab = String(req.query.next || '').toLowerCase();
@@ -206,10 +202,10 @@ app.get('/auth/discord', (req, res, next) => {
 
   next();
 }, passport.authenticate('discord'));
+
 /**
- * ✅ FINAL DEBUG CALLBACK
- * Vypíše presnú odpoveď Discordu do Render logov:
- * RAW: {"error":"invalid_client"} / {"error":"redirect_uri_mismatch"} / {"error":"invalid_grant"} ...
+ * Debug callback – nechávame, lebo je to užitočné pri problémoch.
+ * Ak nechceš debug, môžeme to neskôr zjednodušiť.
  */
 app.get("/auth/discord/callback", (req, res, next) => {
   if (!discordEnvOk) {
@@ -280,7 +276,7 @@ function writeWL(data) {
   fs.writeFileSync(wlFile, JSON.stringify(data, null, 2));
 }
 
-/* WL iba pre prihlásených */
+/* WL submit: iba prihlásený */
 app.post('/api/whitelist', async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ success: false, error: 'Najprv sa prihlás cez Discord.' });
@@ -322,29 +318,8 @@ app.post('/api/whitelist', async (req, res) => {
   });
 
   writeWL(wl);
-    // ✅ webhook notifikácia o výsledku (approve / reject)
-  const reqItem = wl[idx];
-  const actionLabel = action === "approve" ? "🟢 Schválené" : "🔴 Zamietnuté";
-  const color = action === "approve" ? 0x2ECC71 : 0xE74C3C;
 
-  await sendDiscordWebhook({
-    username: "Fracture Roleplay WL",
-    avatar_url: BRAND_LOGO_URL,
-    embeds: [{
-      title: `${actionLabel} whitelist žiadosť`,
-      color,
-      fields: [
-        { name: "Meno / Nick", value: clip(reqItem.Meno, 1024), inline: true },
-        { name: "Vek", value: clip(reqItem.Vek, 1024), inline: true },
-        { name: "Discord", value: clip(reqItem.Discord, 1024), inline: false },
-        { name: "Discord ID", value: clip(reqItem.DiscordId, 1024), inline: false },
-        { name: "Status", value: clip(reqItem.status, 1024), inline: true },
-      ],
-      footer: { text: "Fracture Roleplay" },
-      timestamp: new Date().toISOString(),
-    }]
-  });
-
+  // ✅ webhook: nová whitelist žiadosť
   await sendDiscordWebhook({
     username: "Fracture Roleplay WL",
     avatar_url: BRAND_LOGO_URL,
@@ -366,7 +341,7 @@ app.post('/api/whitelist', async (req, res) => {
     }]
   });
 
-  res.json({ success: true, id });
+  return res.json({ success: true, id });
 });
 
 /* list žiadostí: iba admin */
@@ -374,19 +349,17 @@ app.get('/api/whitelist', (req, res) => {
   if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
   }
-  res.json(readWL());
+  return res.json(readWL());
 });
 
-/**
- * approve/reject: iba admin
- * ✅ FIX: prijme buď {id, action} alebo {index, action} (aby sedelo aj s tvojím aktuálnym frontendom)
- */
+/* approve/reject: iba admin – prijme {id, action} alebo {index, action} */
 app.post('/api/whitelist/action', async (req, res) => {
   if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
   }
 
   const { id, index, action } = req.body;
+
   if (action !== 'approve' && action !== 'reject') {
     return res.status(400).json({ success: false, error: 'Zlé dáta (action).' });
   }
@@ -394,11 +367,9 @@ app.post('/api/whitelist/action', async (req, res) => {
   const wl = readWL();
 
   let idx = -1;
-
   if (id) {
     idx = wl.findIndex(x => String(x.id) === String(id));
   } else if (Number.isInteger(index)) {
-    // index prichádza z frontendu
     idx = index;
   }
 
@@ -410,7 +381,30 @@ app.post('/api/whitelist/action', async (req, res) => {
   wl[idx].updatedAt = new Date().toISOString();
   writeWL(wl);
 
-  res.json({ success: true });
+  // ✅ webhook: výsledok (approve/reject)
+  const reqItem = wl[idx];
+  const actionLabel = action === 'approve' ? '🟢 Schválené' : '🔴 Zamietnuté';
+  const color = action === 'approve' ? 0x2ECC71 : 0xE74C3C;
+
+  await sendDiscordWebhook({
+    username: "Fracture Roleplay WL",
+    avatar_url: BRAND_LOGO_URL,
+    embeds: [{
+      title: `${actionLabel} whitelist žiadosť`,
+      color,
+      fields: [
+        { name: "Meno / Nick", value: clip(reqItem.Meno, 1024), inline: true },
+        { name: "Vek", value: clip(reqItem.Vek, 1024), inline: true },
+        { name: "Discord", value: clip(reqItem.Discord, 1024), inline: false },
+        { name: "Discord ID", value: clip(reqItem.DiscordId, 1024), inline: false },
+        { name: "Status", value: clip(reqItem.status, 1024), inline: true },
+      ],
+      footer: { text: "Fracture Roleplay" },
+      timestamp: new Date().toISOString(),
+    }]
+  });
+
+  return res.json({ success: true });
 });
 
 /* ============================= */
