@@ -190,12 +190,22 @@ app.get('/auth/discord', (req, res, next) => {
     return res.status(500).send("Discord OAuth nie je nastavený.");
   }
 
+  // 🔒 ANTI-SPAM LOCK (max 1 pokus za 5 sekúnd)
+  const now = Date.now();
+  const last = Number(req.session.lastDiscordAuthAt || 0);
+
+  if (now - last < 5000) {
+    console.log("Discord auth blocked (too fast)");
+    return res.status(429).send("Prihlasuješ sa príliš rýchlo. Skús o chvíľu.");
+  }
+
+  req.session.lastDiscordAuthAt = now;
+
   const nextTab = String(req.query.next || '').toLowerCase();
   req.session.afterLoginTab = (nextTab === 'whitelist') ? 'whitelist' : 'admin';
 
   next();
 }, passport.authenticate('discord'));
-
 /**
  * ✅ FINAL DEBUG CALLBACK
  * Vypíše presnú odpoveď Discordu do Render logov:
