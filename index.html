@@ -158,6 +158,27 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
   border-color:#ff4b5c;
 }
 .rules-actions button:hover{background:#ff4b5c;color:#000;border-color:#ff4b5c;}
+
+/* WL FORM UPGRADE */
+.wl-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:14px;
+}
+@media (max-width:720px){
+  .wl-grid{grid-template-columns:1fr;}
+}
+
+.wl-field{margin-bottom:14px;}
+.wl-hint{font-size:12px;color:#aaa;margin-top:4px;}
+.wl-count{font-size:12px;color:#aaa;text-align:right;margin-top:4px;}
+.wl-count.ok{color:#16a34a;}
+.wl-count.bad{color:#dc2626;}
+
+textarea.wl-ta{
+  min-height:110px;   /* menšie než predtým */
+  resize:vertical;    /* nech si user môže zväčšiť */
+}
 </style>
 </head>
 
@@ -407,17 +428,67 @@ Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunit
     </div>
 
     <form id="wlForm" style="display:none;">
-      <input name="Meno" placeholder="Meno / Nick" required>
-      <input name="Vek" type="number" placeholder="Vek" required>
+     
+  <div class="wl-grid">
+    <div class="wl-field">
+      <label>Meno / Nick</label>
+      <div class="wl-hint">Ako ťa budeme volať?</div>
+      <input name="Meno" required>
+    </div>
 
-      <input id="wlDiscord" disabled placeholder="Discord pripojený">
-      <input id="wlDiscordId" disabled placeholder="Discord ID">
+    <div class="wl-field">
+      <label>Vek</label>
+      <div class="wl-hint">Tvoj reálny vek</div>
+      <input name="Vek" type="number" min="1" max="99" required>
+    </div>
 
-      <textarea name="Skusenosti" placeholder="Zkušenosti s RP" required></textarea>
-      <textarea name="Preco" placeholder="Proč se chceš připojit" required></textarea>
+    <div class="wl-field">
+      <label>Koľko rokov RP?</label>
+      <div class="wl-hint">Koľko rokov máš skúseností s roleplay (môže byť 0)</div>
+      <input name="RPRoky" type="number" min="0" max="50" required>
+    </div>
 
-      <button type="submit" id="wlSubmitBtn">Odoslať</button>
-    </form>
+    <div class="wl-field">
+      <label>Koľko hodín vo FiveM?</label>
+      <div class="wl-hint">Odhad / približne (môže byť 0)</div>
+      <input name="FiveMHodiny" type="number" min="0" max="99999" required>
+    </div>
+
+    <div class="wl-field">
+      <label>Discord (automaticky)</label>
+      <input id="wlDiscord" disabled placeholder="Pripoj sa cez Discord">
+    </div>
+
+    <div class="wl-field">
+      <label>Discord ID (automaticky)</label>
+      <input id="wlDiscordId" disabled placeholder="Pripoj sa cez Discord">
+    </div>
+  </div>
+
+  <div class="wl-field">
+    <label>Zkušenosti s RP</label>
+    <div class="wl-hint">Minimálne 50 znakov. Píš konkrétne (čo si hral, kde, štýl RP).</div>
+    <textarea class="wl-ta" name="Skusenosti" id="wlExp" maxlength="1000" required></textarea>
+    <div class="wl-count bad" id="c1">0/1000 (min 50)</div>
+  </div>
+
+  <div class="wl-field">
+    <label>Proč se chceš připojit</label>
+    <div class="wl-hint">Minimálne 50 znakov. Prečo práve Fracture RP?</div>
+    <textarea class="wl-ta" name="Preco" id="wlWhy" maxlength="1000" required></textarea>
+    <div class="wl-count bad" id="c2">0/1000 (min 50)</div>
+  </div>
+
+  <div class="wl-field" style="margin-top:10px;">
+    <label style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="wlRulesOk" required style="width:auto;margin:0;">
+      <span>Čítal som pravidlá a súhlasím s nimi.</span>
+    </label>
+    <div class="wl-hint">Bez potvrdenia sa WL nedá odoslať.</div>
+  </div>
+
+  <button id="wlSubmitBtn" type="submit">Odoslať</button>
+</form>
   </div>
 </section>
 
@@ -577,13 +648,26 @@ document.getElementById("wlForm").addEventListener("submit", async (e)=>{
     return;
   }
 
-  const data = Object.fromEntries(new FormData(e.target));
-  const payload = {
-    Meno: data.Meno,
-    Vek: data.Vek,
-    Skusenosti: data.Skusenosti,
-    Preco: data.Preco
-  };
+  // min 50 znakov
+if((data.Skusenosti || "").trim().length < 50 || (data.Preco || "").trim().length < 50){
+  alert("Odpovede musia mať minimálne 50 znakov.");
+  return;
+}
+
+// checkbox pravidlá
+const rulesOk = document.getElementById("wlRulesOk");
+if(rulesOk && !rulesOk.checked){
+  alert("Musíš potvrdiť, že si čítal pravidlá.");
+  return;
+}
+ const payload = {
+  Meno: data.Meno || "",
+  Vek: Number(data.Vek || 0),
+  RPRoky: Number(data.RPRoky || 0),
+  FiveMHodiny: Number(data.FiveMHodiny || 0),
+  Skusenosti: data.Skusenosti || "",
+  Preco: data.Preco || ""
+};
 
   try{
     const r = await fetch("/api/whitelist",{
@@ -594,17 +678,38 @@ document.getElementById("wlForm").addEventListener("submit", async (e)=>{
     });
     const res = await r.json();
 
-    if(res.success){
-      alert("Odoslané");
-      e.target.reset();
-    } else {
-      alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
-    }
-  } catch {
-    alert("Chyba pripojenia na server");
-  }
-});
+if(res.success){
+  alert("Odoslané");
+  e.target.reset();
+  document.getElementById("wlRulesOk").checked = false;
+  document.getElementById("c1").textContent = "0/1000 (min 50)";
+  document.getElementById("c2").textContent = "0/1000 (min 50)";
+  document.getElementById("c1").className = "wl-count bad";
+  document.getElementById("c2").className = "wl-count bad";
 
+  // reset checkbox pravidlá
+  const rulesOk = document.getElementById("wlRulesOk");
+  if(rulesOk) rulesOk.checked = false;
+
+  // reset počítadlá znakov
+  const c1 = document.getElementById("c1");
+  const c2 = document.getElementById("c2");
+
+  if(c1){
+    c1.textContent = "0/1000 (min 50)";
+    c1.className = "wl-count bad";
+  }
+  if(c2){
+    c2.textContent = "0/1000 (min 50)";
+    c2.className = "wl-count bad";
+  }
+
+} else {
+  alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
+} } catch {
+  alert("Chyba pripojenia na server");
+}
+});
 /* ---------- ADMIN ---------- */
 let ADMIN_WIRED = false;
 function wireAdminToolsOnce(){
@@ -851,15 +956,38 @@ function ensureRulesBuilt(){
   document.getElementById("rulesCloseAllBtn").addEventListener("click", rulesCloseAll);
 }
 
-/* ---------- INIT ---------- */
-document.addEventListener("DOMContentLoaded", async ()=>{
-  // default tab
-  const params = new URLSearchParams(location.search);
-  const tab = (params.get("tab") || "home").toLowerCase();
-  showTab(["home","rules","whitelist","admin"].includes(tab) ? tab : "home");
+document.addEventListener("DOMContentLoaded", ()=>{
+  bindCounterById("wlExp","c1",1000,50);
+  bindCounterById("wlWhy","c2",1000,50);
 
-  await refreshAuthUI();
+  autoResizeTA(document.getElementById("wlExp"));
+  autoResizeTA(document.getElementById("wlWhy"));
 });
+function bindCounterById(textareaId, counterId, max, min=50){
+  const t = document.getElementById(textareaId);
+  const c = document.getElementById(counterId);
+  if(!t || !c) return;
+
+  const update = ()=>{
+    const len = t.value.length;
+    c.textContent = `${len}/${max} (min ${min})`;
+    c.classList.toggle("ok", len >= min);
+    c.classList.toggle("bad", len < min);
+  };
+
+  t.addEventListener("input", update);
+  update();
+}
+
+function autoResizeTA(el){
+  if(!el) return;
+  const resize = ()=>{
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 360) + "px"; // max 360px
+  };
+  el.addEventListener("input", resize);
+  resize();
+}
 </script>
 
 </body>

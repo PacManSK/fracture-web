@@ -245,12 +245,12 @@ app.post('/api/whitelist', async (req, res) => {
     return res.status(401).json({ success: false, error: 'Najprv sa prihlás cez Discord.' });
   }
 
-  const { Meno, Vek, Skusenosti, Preco } = req.body;
+  const { Meno, Vek, RPRoky, FiveMHodiny, Skusenosti, Preco } = req.body;
 
-  if (!Meno || !Vek || !Skusenosti || !Preco) {
-    return res.json({ success: false, error: 'Nevyplnené polia!' });
-  }
 
+ if (!Meno || !Vek || RPRoky === undefined || FiveMHodiny === undefined || !Skusenosti || !Preco) {
+  return res.json({ success: false, error: 'Nevyplnené polia!' });
+}
   const wl = readWL();
 
   const discordUserId = String(req.user.id);
@@ -275,6 +275,8 @@ app.post('/api/whitelist', async (req, res) => {
     Skusenosti,
     Preco,
     status: 'pending',
+    RPRoky,
+    FiveMHodiny,
     createdAt: new Date().toISOString()
   });
 
@@ -293,6 +295,8 @@ app.post('/api/whitelist', async (req, res) => {
         { name: "Discord ID", value: clip(discordUserId, 1024), inline: false },
         { name: "Skúsenosti s RP", value: clip(Skusenosti, 1024), inline: false },
         { name: "Prečo sa chce pripojiť", value: clip(Preco, 1024), inline: false },
+        { name: "RP roky", value: clip(RPRoky, 1024), inline: true },
+        { name: "FiveM hodiny", value: clip(FiveMHodiny, 1024), inline: true },
       ],
       footer: { text: "Fracture Roleplay" },
       timestamp: new Date().toISOString(),
