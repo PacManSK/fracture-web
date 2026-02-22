@@ -9,11 +9,13 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:Arial;background:#0d0d0d;color:#fff;}
 
+/* HEADER */
 header{position:relative;background:linear-gradient(90deg,#1a1a1a,#111);text-align:center;padding:30px;}
 .logo{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:80px;}
 .header-text h1{font-size:48px;color:#ff4b5c;}
 .header-text p{color:#ccc;}
 
+/* NAV */
 nav{position:relative;background:#111;padding:15px 0;border-bottom:2px solid #222;display:flex;justify-content:center;}
 .discord-btn{position:absolute;left:20px;top:50%;transform:translateY(-50%);background:#5865F2;color:#fff;padding:8px 16px;border-radius:5px;text-decoration:none;font-weight:bold;}
 .nav-center{display:flex;gap:25px;}
@@ -29,32 +31,30 @@ textarea{min-height:150px;}
 button{background:#ff4b5c;color:#000;border:none;padding:12px 20px;font-weight:bold;cursor:pointer;border-radius:5px;}
 footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;color:#ccc;}
 
-.rules-meta{color:#aaa;font-size:13px;margin-bottom:12px;}
-.rules-block{background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:16px;margin-top:14px;}
-.rules-sub{font-size:18px;font-weight:900;color:#ff4b5c;margin-bottom:10px;}
-.rules-text{color:#e9e9e9;line-height:1.7;white-space:pre-wrap;}
-.rules-list{margin-left:18px;}
-.rules-list li{margin:6px 0;}
-
+/* Notices */
 .notice{background:#0f172a;border:1px solid #1f2a44;padding:12px 14px;border-radius:10px;margin-bottom:14px;}
 .discord-login-btn{display:inline-block;background:#5865F2;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;font-weight:bold;}
 .me-row{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
 .me-avatar{width:36px;height:36px;border-radius:50%;border:1px solid #333;object-fit:cover;background:#222;}
 .muted{color:#aaa;font-size:13px;margin-top:10px;}
 
+/* WL cards */
 .wl-card{background:#141414;border:1px solid #333;border-radius:12px;margin-bottom:20px;padding:15px;cursor:pointer;}
 .wl-header{display:flex;justify-content:space-between;align-items:center;gap:16px;}
-.wl-user{display:flex;align-items:center;gap:12px;}
-.wl-avatar{width:46px;height:46px;border-radius:50%;border:1px solid #333;background:#222;}
+.wl-user{display:flex;align-items:center;gap:12px;min-width:260px;}
+.wl-avatar{width:46px;height:46px;border-radius:50%;border:1px solid #333;background:#222;object-fit:cover;}
 .wl-name{color:#ff4b5c;font-size:18px;font-weight:bold;}
 .wl-sub{color:#bbb;font-size:13px;margin-top:4px;}
-.status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;}
+.status{padding:5px 10px;border-radius:20px;font-size:12px;background:#333;white-space:nowrap;}
 .wl-body{display:none;margin-top:14px;}
 .wl-card.open .wl-body{display:block;}
-
 .ok{background:#16a34a;color:#fff;}
 .no{background:#dc2626;color:#fff;}
 
+.qa-q{margin-top:16px;font-weight:900;color:#ff4b5c;}
+.qa-a{margin-top:8px;color:#e9e9e9;line-height:1.55;white-space:pre-wrap;}
+
+/* Admin tools */
 .admin-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:12px 0 16px 0;padding:12px;background:#0f0f0f;border:1px solid #222;border-radius:10px;}
 .tools-left,.tools-right{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .badge{padding:6px 10px;border-radius:999px;font-size:12px;background:#222;border:1px solid #333;}
@@ -64,14 +64,9 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 .small-muted{color:#aaa;font-size:12px;}
 
 /* RULES ACCORDION */
+.rules-meta{color:#aaa;font-size:13px;margin-bottom:12px;}
 .rules-acc{margin-top:14px;}
-.rules-item{
-  background:#0f0f0f;
-  border:1px solid #222;
-  border-radius:12px;
-  overflow:hidden;
-  margin-top:12px;
-}
+.rules-item{background:#0f0f0f;border:1px solid #222;border-radius:12px;overflow:hidden;margin-top:12px;}
 .rules-btn{
   width:100%;
   text-align:left;
@@ -86,53 +81,15 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
   gap:10px;
 }
 .rules-btn:hover{background:#121212;}
-.rules-title{
-  font-size:16px;
-  font-weight:900;
-  color:#ff4b5c;
-}
-.rules-chip{
-  font-size:12px;
-  color:#bbb;
-  background:#1a1a1a;
-  border:1px solid #333;
-  padding:4px 10px;
-  border-radius:999px;
-  white-space:nowrap;
-}
-.rules-content{
-  display:none;
-  padding:14px;
-  border-top:1px solid #222;
-  color:#e9e9e9;
-  line-height:1.7;
-  white-space:pre-wrap;
-}
+.rules-title{font-size:16px;font-weight:900;color:#ff4b5c;}
+.rules-chip{font-size:12px;color:#bbb;background:#1a1a1a;border:1px solid #333;padding:4px 10px;border-radius:999px;white-space:nowrap;}
+.rules-content{display:none;padding:14px;border-top:1px solid #222;color:#e9e9e9;line-height:1.7;white-space:pre-wrap;}
 .rules-item.open .rules-content{display:block;}
-.rules-caret{
-  color:#bbb;
-  font-size:14px;
-  transform:rotate(0deg);
-  transition:transform .15s ease;
-}
+.rules-caret{color:#bbb;font-size:14px;transform:rotate(0deg);transition:transform .15s ease;}
 .rules-item.open .rules-caret{transform:rotate(180deg);}
-.rules-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin:10px 0;
-}
-.rules-actions button{
-  background:#222;
-  color:#fff;
-  border:1px solid #333;
-  padding:10px 12px;
-}
-.rules-actions button:hover{
-  background:#ff4b5c;
-  color:#000;
-  border-color:#ff4b5c;
-}
+.rules-actions{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0;}
+.rules-actions button{background:#222;color:#fff;border:1px solid #333;padding:10px 12px;}
+.rules-actions button:hover{background:#ff4b5c;color:#000;border-color:#ff4b5c;}
 </style>
 </head>
 
@@ -149,10 +106,10 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 <nav>
   <a href="https://discord.gg/5HY5Sq8wKZ" target="_blank" class="discord-btn">Discord</a>
   <div class="nav-center">
-    <a class="active" onclick="showTab('home',this)">Domov</a>
-    <a onclick="showTab('rules',this)">Pravidlá</a>
-    <a onclick="showTab('whitelist',this)">Whitelist</a>
-    <a onclick="showTab('admin',this)">Admin</a>
+    <a class="active" data-tab="home">Domov</a>
+    <a data-tab="rules">Pravidlá</a>
+    <a data-tab="whitelist">Whitelist</a>
+    <a data-tab="admin">Admin</a>
   </div>
 </nav>
 
@@ -163,31 +120,20 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
   </div>
 </section>
 
-<!-- PRAVIDLÁ – plný text ktorý si poslal -->
-<section id="rules">
-  <div class="card">
-    <h2>Pravidlá</h2>
-    <div class="rules-meta">Pravidla serveru Fracture Roleplay. Poslední úprava - 15.2.2026</div>
-
-    <div class="rules-block"><div class="rules-text">
-<!-- kvôli dĺžke odpovede som zachoval tvoju existujúcu štruktúru
-   a nahradil iba RULES blok + admin upgrade JS/CSS už je v predošlom finali.
-   Nižšie je PRESNÝ rules blok ktorý máš vložiť do toho finalného html. -->
-
 <section id="rules">
   <div class="card">
     <h2>Pravidlá</h2>
     <div class="rules-meta">Pravidla serveru Fracture Roleplay. Poslední úprava - 15.2.2026</div>
 
     <div class="rules-actions">
-  <button type="button" onclick="rulesOpenAll()">Rozbaliť všetko</button>
-  <button type="button" onclick="rulesCloseAll()">Zbaliť všetko</button>
-</div>
+      <button type="button" id="rulesOpenAllBtn">Rozbaliť všetko</button>
+      <button type="button" id="rulesCloseAllBtn">Zbaliť všetko</button>
+    </div>
 
-
-<div id="rulesSource" class="rules-block">
-  <div class="rules-text" id="rulesRawText">
-    Pravidla serveru Fracture Roleplay. Poslední úprava - 15.2.2026
+    <!-- Zdrojový text pravidiel (IBA TEXT! žiadne HTML tagy) -->
+    <div id="rulesSource" style="display:none;">
+      <div id="rulesRawText">
+Pravidla serveru Fracture Roleplay. Poslední úprava - 15.2.2026
 
 0. Fivem Gta RP je hra né realný život, ale simulace
 1. 10 minut před a po restartu je zakázáno zahajovat veškerou nelegální činnost.
@@ -370,7 +316,6 @@ Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunit
   </div>
 </section>
 
-<!-- WHITELIST -->
 <section id="whitelist">
   <div class="card">
     <h2>Whitelist formulár</h2>
@@ -382,29 +327,33 @@ Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunit
     </div>
 
     <div id="wlMeNotice" class="notice" style="display:none;">
-      <div class="me-row">
-        <img id="wlMeAvatar" class="me-avatar">
+      <div class="me-row" style="margin:0;">
+        <img id="wlMeAvatar" class="me-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="me">
         <div>
-          <div id="wlMeName"></div>
-          <div id="wlMeId" class="muted"></div>
+          <div id="wlMeName" style="font-weight:bold;">Prihlásený</div>
+          <div class="muted" id="wlMeId"></div>
         </div>
-        <button onclick="logoutAll()">Odhlásiť</button>
+        <div style="margin-left:auto;">
+          <button type="button" id="wlLogoutBtn">Odhlásiť</button>
+        </div>
       </div>
     </div>
 
     <form id="wlForm" style="display:none;">
       <input name="Meno" placeholder="Meno / Nick" required>
       <input name="Vek" type="number" placeholder="Vek" required>
-      <input id="wlDiscord" disabled>
-      <input id="wlDiscordId" disabled>
+
+      <input id="wlDiscord" disabled placeholder="Discord pripojený">
+      <input id="wlDiscordId" disabled placeholder="Discord ID">
+
       <textarea name="Skusenosti" placeholder="Zkušenosti s RP" required></textarea>
       <textarea name="Preco" placeholder="Proč se chceš připojit" required></textarea>
-      <button type="submit">Odoslať</button>
+
+      <button type="submit" id="wlSubmitBtn">Odoslať</button>
     </form>
   </div>
 </section>
 
-<!-- ADMIN -->
 <section id="admin">
   <div class="card">
     <h2>Admin Panel</h2>
@@ -415,7 +364,6 @@ Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunit
     </div>
 
     <div id="panel" style="display:none;">
-
       <div class="admin-tools" id="adminTools" style="display:none;">
         <div class="tools-left">
           <span class="badge">Total <b id="cntAll">0</b></span>
@@ -443,7 +391,7 @@ Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunit
           </select>
 
           <input id="searchBox" placeholder="Search: meno / discord / ID">
-          <button id="btnRefresh">Refresh</button>
+          <button type="button" id="btnRefresh">Refresh</button>
         </div>
       </div>
 
@@ -455,168 +403,290 @@ Vedení mají právo na změnu pravidel, o které jsou hráči/členové komunit
 <footer>© 2026 Fracture Roleplay</footer>
 
 <script>
+/* ---------- HELPERS ---------- */
 function escapeHtml(v){
   const s = String(v ?? "");
   return s
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
-function showTab(id,el){
+
+function showTab(id){
   document.querySelectorAll("section").forEach(s=>s.style.display="none");
-  document.getElementById(id).style.display="block";
+  const sec = document.getElementById(id);
+  if(sec) sec.style.display="block";
+
   document.querySelectorAll(".nav-center a").forEach(a=>a.classList.remove("active"));
-  el.classList.add("active");
+  const link = document.querySelector(`.nav-center a[data-tab="${id}"]`);
+  if(link) link.classList.add("active");
+
+  // Build rules when opening tab
+  if(id === "rules") ensureRulesBuilt();
 }
-document.querySelectorAll("section")[0].style.display="block";
 
-function logoutAll(){ window.location.href="/auth/logout"; }
+/* ---------- NAV ---------- */
+document.querySelectorAll(".nav-center a").forEach(a=>{
+  a.addEventListener("click", ()=>{
+    const tab = a.getAttribute("data-tab");
+    showTab(tab);
+    history.replaceState(null, "", tab ? `/?tab=${tab}` : "/");
+  });
+});
 
-let WL_CACHE=[];
-let autoRefreshTimer=null;
+/* ---------- AUTH/UI ---------- */
+let AUTH = { loggedIn:false, isAdmin:false, user:null };
+let WL_CACHE = [];
+let autoRefreshTimer = null;
+let RULES_BUILT = false;
 
 async function refreshAuthUI(){
-  const r = await fetch("/auth/me",{credentials:"include"});
-  const me = await r.json();
+  const wlLoginNotice = document.getElementById("wlLoginNotice");
+  const wlMeNotice = document.getElementById("wlMeNotice");
+  const wlForm = document.getElementById("wlForm");
 
-  if(me.loggedIn){
-    wlLoginNotice.style.display="none";
-    wlMeNotice.style.display="block";
-    wlForm.style.display="block";
+  const login = document.getElementById("login");
+  const panel = document.getElementById("panel");
+  const adminTools = document.getElementById("adminTools");
 
-    wlMeName.textContent=me.user.username;
-    wlMeId.textContent="ID: "+me.user.id;
-    wlDiscord.value=me.user.username+"#"+me.user.discriminator;
-    wlDiscordId.value=me.user.id;
-    wlMeAvatar.src=me.user.avatarUrl;
-  }else{
-    wlLoginNotice.style.display="block";
-    wlMeNotice.style.display="none";
-    wlForm.style.display="none";
+  try{
+    const r = await fetch("/auth/me", { credentials:"include" });
+    const me = await r.json();
+    AUTH = me || { loggedIn:false, isAdmin:false, user:null };
+  } catch {
+    AUTH = { loggedIn:false, isAdmin:false, user:null };
   }
 
-  if(me.loggedIn && me.isAdmin){
-    login.style.display="none";
-    panel.style.display="block";
-    adminTools.style.display="flex";
+  // WL
+  if(AUTH.loggedIn){
+    wlLoginNotice.style.display = "none";
+    wlMeNotice.style.display = "block";
+    wlForm.style.display = "block";
 
-    document.getElementById("btnRefresh").onclick=()=>loadRequests(true);
-    document.getElementById("statusFilter").onchange=applyAdminView;
-    document.getElementById("sortBy").onchange=applyAdminView;
-    document.getElementById("searchBox").oninput=applyAdminView;
+    document.getElementById("wlMeName").textContent = AUTH.user?.username || "Prihlásený";
+    document.getElementById("wlMeId").textContent = AUTH.user?.id ? `ID: ${AUTH.user.id}` : "";
+    document.getElementById("wlDiscord").value = AUTH.user?.username && AUTH.user?.discriminator
+      ? `${AUTH.user.username}#${AUTH.user.discriminator}` : "Discord pripojený";
+    document.getElementById("wlDiscordId").value = AUTH.user?.id || "";
 
-    loadRequests(true);
-    autoRefreshTimer=setInterval(()=>loadRequests(false),20000);
+    document.getElementById("wlMeAvatar").src = AUTH.user?.avatarUrl || AUTH.user?.defaultAvatarUrl
+      || "https://cdn.discordapp.com/embed/avatars/0.png";
+  } else {
+    wlLoginNotice.style.display = "block";
+    wlMeNotice.style.display = "none";
+    wlForm.style.display = "none";
   }
+
+  // Admin
+  if(AUTH.loggedIn && AUTH.isAdmin){
+    login.style.display = "none";
+    panel.style.display = "block";
+    adminTools.style.display = "flex";
+
+    wireAdminToolsOnce();
+    await loadRequests(true);
+
+    if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(()=>loadRequests(false), 20000);
+  } else {
+    panel.style.display = "none";
+    login.style.display = "block";
+    adminTools.style.display = "none";
+    if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = null;
+  }
+}
+
+document.getElementById("wlLogoutBtn").addEventListener("click", ()=> location.href="/auth/logout");
+
+/* ---------- WL SUBMIT ---------- */
+document.getElementById("wlForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+
+  if(!AUTH.loggedIn){
+    alert("Najprv sa prihlás cez Discord.");
+    return;
+  }
+
+  const data = Object.fromEntries(new FormData(e.target));
+  const payload = {
+    Meno: data.Meno,
+    Vek: data.Vek,
+    Skusenosti: data.Skusenosti,
+    Preco: data.Preco
+  };
+
+  try{
+    const r = await fetch("/api/whitelist",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      credentials:"include",
+      body:JSON.stringify(payload)
+    });
+    const res = await r.json();
+
+    if(res.success){
+      alert("Odoslané");
+      e.target.reset();
+    } else {
+      alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
+    }
+  } catch {
+    alert("Chyba pripojenia na server");
+  }
+});
+
+/* ---------- ADMIN ---------- */
+let ADMIN_WIRED = false;
+function wireAdminToolsOnce(){
+  if(ADMIN_WIRED) return;
+  ADMIN_WIRED = true;
+
+  document.getElementById("btnRefresh").addEventListener("click", ()=>loadRequests(true));
+  document.getElementById("statusFilter").addEventListener("change", applyAdminView);
+  document.getElementById("sortBy").addEventListener("change", applyAdminView);
+  document.getElementById("searchBox").addEventListener("input", applyAdminView);
 }
 
 async function loadRequests(showTime){
-  const r=await fetch("/api/whitelist",{credentials:"include"});
-  WL_CACHE=await r.json();
+  try{
+    const r = await fetch("/api/whitelist", { credentials:"include" });
+    const data = await r.json();
+    WL_CACHE = Array.isArray(data) ? data : [];
+  } catch {
+    WL_CACHE = [];
+  }
+
   applyAdminView();
 
   if(showTime){
-    lastRefresh.textContent="Refresh: "+new Date().toLocaleTimeString();
+    document.getElementById("lastRefresh").textContent = "Refresh: " + new Date().toLocaleTimeString();
   }
 }
 
 function applyAdminView(){
-  const status=statusFilter.value;
-  const sortByVal=sortBy.value;
-  const q=searchBox.value.toLowerCase();
+  const status = document.getElementById("statusFilter").value;
+  const sortByVal = document.getElementById("sortBy").value;
+  const q = document.getElementById("searchBox").value.toLowerCase();
 
-  let data=WL_CACHE.filter(r=>{
-    if(status!=="all" && r.status!==status) return false;
-    if(q){
-      const blob=(r.Meno+" "+r.Discord+" "+r.DiscordId).toLowerCase();
-      if(!blob.includes(q)) return false;
-    }
-    return true;
-  });
+  const rankA = { pending:0, approved:1, rejected:2 };
+  const rankB = { rejected:0, approved:1, pending:2 };
 
-  const rankA={pending:0,approved:1,rejected:2};
-  const rankB={rejected:0,approved:1,pending:2};
+  let data = WL_CACHE
+    .map((r, idx)=> ({...r, __idx: idx}))
+    .filter(r=>{
+      if(status !== "all" && r.status !== status) return false;
+      if(q){
+        const blob = `${r.Meno||""} ${r.Discord||""} ${r.DiscordId||""}`.toLowerCase();
+        if(!blob.includes(q)) return false;
+      }
+      return true;
+    });
 
-  data=data.sort((a,b)=>{
-    const ta=new Date(a.createdAt||0);
-    const tb=new Date(b.createdAt||0);
+  data.sort((a,b)=>{
+    const ta = new Date(a.createdAt || 0).getTime();
+    const tb = new Date(b.createdAt || 0).getTime();
 
-    if(sortByVal==="newest") return tb-ta;
-    if(sortByVal==="oldest") return ta-tb;
-    if(sortByVal==="name_az") return a.Meno.localeCompare(b.Meno,"cs");
-    if(sortByVal==="name_za") return b.Meno.localeCompare(a.Meno,"cs");
+    if(sortByVal==="newest") return tb - ta;
+    if(sortByVal==="oldest") return ta - tb;
+    if(sortByVal==="name_az") return String(a.Meno||"").localeCompare(String(b.Meno||""),"cs");
+    if(sortByVal==="name_za") return String(b.Meno||"").localeCompare(String(a.Meno||""),"cs");
 
     if(sortByVal==="status_paR"){
-      if(rankA[a.status]!==rankA[b.status]) return rankA[a.status]-rankA[b.status];
+      if(rankA[a.status] !== rankA[b.status]) return rankA[a.status]-rankA[b.status];
       return tb-ta;
     }
     if(sortByVal==="status_Rap"){
-      if(rankB[a.status]!==rankB[b.status]) return rankB[a.status]-rankB[b.status];
+      if(rankB[a.status] !== rankB[b.status]) return rankB[a.status]-rankB[b.status];
       return tb-ta;
     }
+    return tb - ta;
   });
 
-  cntAll.textContent=WL_CACHE.length;
-  cntPending.textContent=WL_CACHE.filter(x=>x.status==="pending").length;
-  cntApproved.textContent=WL_CACHE.filter(x=>x.status==="approved").length;
-  cntRejected.textContent=WL_CACHE.filter(x=>x.status==="rejected").length;
+  document.getElementById("cntAll").textContent = WL_CACHE.length;
+  document.getElementById("cntPending").textContent = WL_CACHE.filter(x=>x.status==="pending").length;
+  document.getElementById("cntApproved").textContent = WL_CACHE.filter(x=>x.status==="approved").length;
+  document.getElementById("cntRejected").textContent = WL_CACHE.filter(x=>x.status==="rejected").length;
 
-  requests.innerHTML="";
+  const box = document.getElementById("requests");
+  box.innerHTML = "";
+
+  if(!data.length){
+    box.innerHTML = `<p style="color:#bbb;">Žiadne žiadosti</p>`;
+    return;
+  }
 
   data.forEach(req=>{
-    const card=document.createElement("div");
-    card.className="wl-card";
+    const card = document.createElement("div");
+    card.className = "wl-card";
 
-    card.innerHTML=`
+    const avatar = req.avatarUrl || req.defaultAvatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
+
+    card.innerHTML = `
       <div class="wl-header">
         <div class="wl-user">
-          <img class="wl-avatar" src="${req.avatarUrl}">
+          <img class="wl-avatar" src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
           <div>
-            <div class="wl-name">${req.Meno}</div>
-            <div class="wl-sub">${req.Discord}</div>
+            <div class="wl-name">${escapeHtml(req.Meno || "-")}</div>
+            <div class="wl-sub">Discord: ${escapeHtml(req.Discord || "-")}</div>
           </div>
         </div>
-        <div class="status">${req.status}</div>
+        <div class="status">${escapeHtml(req.status || "pending")}</div>
       </div>
 
       <div class="wl-body">
-        <div><b>Věk:</b> ${req.Vek}</div>
-        <div><b>ID:</b> ${req.DiscordId}</div>
-        <div><b>RP:</b><br>${req.Skusenosti}</div>
-        <div><b>Proč:</b><br>${req.Preco}</div>
+        <div class="qa-q">Věk:</div>
+        <div class="qa-a">${escapeHtml(req.Vek || "-")}</div>
 
-        <button class="ok" onclick="action('${req.id}','approve')">Schváliť</button>
-        <button class="no" onclick="action('${req.id}','reject')">Zamietnuť</button>
+        <div class="qa-q">Discord ID:</div>
+        <div class="qa-a">${escapeHtml(req.DiscordId || "-")}</div>
+
+        <div class="qa-q">Zkušenosti s RP:</div>
+        <div class="qa-a">${escapeHtml(req.Skusenosti || "")}</div>
+
+        <div class="qa-q">Proč se chce připojit:</div>
+        <div class="qa-a">${escapeHtml(req.Preco || "")}</div>
+
+        <div style="margin-top:14px;display:flex;gap:10px;">
+          <button class="ok" type="button" data-act="approve">Schváliť</button>
+          <button class="no" type="button" data-act="reject">Zamietnuť</button>
+        </div>
       </div>
     `;
 
-    card.onclick=(e)=>{
-      if(e.target.tagName==="BUTTON") return;
+    card.addEventListener("click",(e)=>{
+      const t = e.target;
+      if(t && t.tagName === "BUTTON"){
+        const act = t.getAttribute("data-act");
+        adminAction(req.__idx, act);
+        return;
+      }
       card.classList.toggle("open");
-    };
+    });
 
-    requests.appendChild(card);
+    box.appendChild(card);
   });
 }
 
-async function action(id,act){
-  await fetch("/api/whitelist/action",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    credentials:"include",
-    body:JSON.stringify({id:id,action:act})
-  });
+async function adminAction(index, act){
+  try{
+    const r = await fetch("/api/whitelist/action",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      credentials:"include",
+      body:JSON.stringify({ index, action: act })
+    });
+    const res = await r.json();
+    if(!res.success) alert(res.error || "Chyba");
+  } catch {
+    alert("Chyba pripojenia na server");
+  }
   loadRequests(true);
 }
 
-document.addEventListener("DOMContentLoaded",refreshAuthUI);
-
-/* =========================
-   RULES ACCORDION (AUTO from HTML)
-   ========================= */
-
+/* ---------- RULES ACCORDION ---------- */
 function rulesOpenAll(){
   const box = document.getElementById("rulesAcc");
   if(!box) return;
@@ -628,71 +698,51 @@ function rulesCloseAll(){
   box.querySelectorAll(".rules-item").forEach(x=>x.classList.remove("open"));
 }
 
-function buildRulesAccordionFromHtml(){
+function ensureRulesBuilt(){
+  if(RULES_BUILT) return;
+  RULES_BUILT = true;
+
   const src = document.getElementById("rulesRawText");
   const acc = document.getElementById("rulesAcc");
-  const srcWrap = document.getElementById("rulesSource");
   if(!src || !acc) return;
 
   const raw = (src.textContent || "").replace(/\r\n/g,"\n").trim();
   if(!raw){
-    acc.innerHTML = `<div class="rules-item open"><button class="rules-btn" type="button"><span class="rules-title">Pravidlá</span><span class="rules-chip">0</span><span class="rules-caret">▼</span></button><div class="rules-content">Chýba text pravidiel.</div></div>`;
+    acc.innerHTML = `<div class="rules-item open">
+      <button class="rules-btn" type="button">
+        <span class="rules-title">Pravidlá</span>
+        <span class="rules-chip">0</span>
+        <span class="rules-caret">▼</span>
+      </button>
+      <div class="rules-content">Chýba text pravidiel.</div>
+    </div>`;
     return;
   }
 
-  // Nadpisy ktoré poznáme (podľa tvojich pravidiel)
   const headings = [
-    "Základní pojmy",
-    "/ME",
-    "/DO",
-    "/TRY",
-    "Pravidlo: Non-RP Injuries",
-    "Non-RP Injuries",
-    "METAGAMING",
-    "MIXING",
-    "POZNÁVÁNÍ HRÁČŮ",
-    "POWERGAMING",
-    "FEAR RP",
-    "JOBFEAR",
-    "JAILFEAR",
-    "GUNFEAR",
-    "PRAVIDLO INVENTÁŘE",
-    "HRANÍ ZA PEDA",
-    "FAILRP",
-    "HRANÍ ZA VÍCE POSTAV",
-    "LORE POSTAV",
-    "COMBATLOG",
-    "COMBAT COMEBACK",
-    "PASSIVE RP",
-    "DRŽENÍ OSOB",
-    "VK - VEHICLE KILL",
-    "KOS - KILL ON SIGHT",
-    "PK - PLAYER KILL",
-    "CK - CHARACTER KILL",
-    "KRÁDEŽE AUT",
-    "VYKRÁDÁNÍ",
-    "KOMUNIKACE S AT",
-    "STOP-RP",
-    "ZÁVĚR",
-    "© 2026"
+    "Základní pojmy","/ME","/DO","/TRY",
+    "Pravidlo: Non-RP Injuries","Non-RP Injuries",
+    "METAGAMING","MIXING","POZNÁVÁNÍ HRÁČŮ","POWERGAMING",
+    "FEAR RP","JOBFEAR","JAILFEAR","GUNFEAR",
+    "PRAVIDLO INVENTÁŘE","HRANÍ ZA PEDA","FAILRP","HRANÍ ZA VÍCE POSTAV",
+    "LORE POSTAV","COMBATLOG","COMBAT COMEBACK","PASSIVE RP",
+    "DRŽENÍ OSOB","VK - VEHICLE KILL","KOS - KILL ON SIGHT","PK - PLAYER KILL","CK - CHARACTER KILL",
+    "KRÁDEŽE AUT","VYKRÁDÁNÍ","KOMUNIKACE S AT","STOP-RP","ZÁVĚR","© 2026"
   ];
 
   const lines = raw.split("\n");
   const isHeadingLine = (line) => {
     const t = line.trim();
     if(!t) return false;
-    // Presné matchy alebo začiatky
     return headings.some(h => t === h || t.startsWith(h));
   };
 
-  // Prvá sekcia = úvod (od začiatku po prvý nadpis)
   const sections = [];
   let currentTitle = "Základné pravidlá";
   let current = [];
 
   for(const line of lines){
     if(isHeadingLine(line)){
-      // push predchádzajúcu
       if(current.length){
         sections.push({ title: currentTitle, text: current.join("\n").trim() });
       }
@@ -706,7 +756,6 @@ function buildRulesAccordionFromHtml(){
     sections.push({ title: currentTitle, text: current.join("\n").trim() });
   }
 
-  // Render accordion
   acc.innerHTML = "";
   sections.forEach((sec, idx)=>{
     const item = document.createElement("div");
@@ -728,18 +777,21 @@ function buildRulesAccordionFromHtml(){
     });
 
     acc.appendChild(item);
-
-    // default: otvor prvé 2
     if(idx < 2) item.classList.add("open");
   });
 
-  // skry pôvodný text, nech to nie je 2x
-  if(srcWrap) srcWrap.style.display = "none";
+  document.getElementById("rulesOpenAllBtn").addEventListener("click", rulesOpenAll);
+  document.getElementById("rulesCloseAllBtn").addEventListener("click", rulesCloseAll);
 }
 
-// zavolaj po načítaní
-document.addEventListener("DOMContentLoaded", ()=>{
-  buildRulesAccordionFromHtml();
+/* ---------- INIT ---------- */
+document.addEventListener("DOMContentLoaded", async ()=>{
+  // default tab
+  const params = new URLSearchParams(location.search);
+  const tab = (params.get("tab") || "home").toLowerCase();
+  showTab(["home","rules","whitelist","admin"].includes(tab) ? tab : "home");
+
+  await refreshAuthUI();
 });
 </script>
 
