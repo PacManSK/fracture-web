@@ -322,6 +322,28 @@ app.post('/api/whitelist', async (req, res) => {
   });
 
   writeWL(wl);
+    // ✅ webhook notifikácia o výsledku (approve / reject)
+  const reqItem = wl[idx];
+  const actionLabel = action === "approve" ? "🟢 Schválené" : "🔴 Zamietnuté";
+  const color = action === "approve" ? 0x2ECC71 : 0xE74C3C;
+
+  await sendDiscordWebhook({
+    username: "Fracture Roleplay WL",
+    avatar_url: BRAND_LOGO_URL,
+    embeds: [{
+      title: `${actionLabel} whitelist žiadosť`,
+      color,
+      fields: [
+        { name: "Meno / Nick", value: clip(reqItem.Meno, 1024), inline: true },
+        { name: "Vek", value: clip(reqItem.Vek, 1024), inline: true },
+        { name: "Discord", value: clip(reqItem.Discord, 1024), inline: false },
+        { name: "Discord ID", value: clip(reqItem.DiscordId, 1024), inline: false },
+        { name: "Status", value: clip(reqItem.status, 1024), inline: true },
+      ],
+      footer: { text: "Fracture Roleplay" },
+      timestamp: new Date().toISOString(),
+    }]
+  });
 
   await sendDiscordWebhook({
     username: "Fracture Roleplay WL",
