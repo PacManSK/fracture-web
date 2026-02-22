@@ -648,26 +648,33 @@ document.getElementById("wlForm").addEventListener("submit", async (e)=>{
     return;
   }
 
-  // min 50 znakov
-if((data.Skusenosti || "").trim().length < 50 || (data.Preco || "").trim().length < 50){
-  alert("Odpovede musia mať minimálne 50 znakov.");
-  return;
-}
+  // ✅ vytvor data z formulára
+  const data = Object.fromEntries(new FormData(e.target).entries());
 
-// checkbox pravidlá
-const rulesOk = document.getElementById("wlRulesOk");
-if(rulesOk && !rulesOk.checked){
-  alert("Musíš potvrdiť, že si čítal pravidlá.");
-  return;
-}
- const payload = {
-  Meno: data.Meno || "",
-  Vek: Number(data.Vek || 0),
-  RPRoky: Number(data.RPRoky || 0),
-  FiveMHodiny: Number(data.FiveMHodiny || 0),
-  Skusenosti: data.Skusenosti || "",
-  Preco: data.Preco || ""
-};
+  // min 50 znakov (2x textarea)
+  if(
+    (data.Skusenosti || "").trim().length < 50 ||
+    (data.Preco || "").trim().length < 50
+  ){
+    alert("Odpovede musia mať minimálne 50 znakov.");
+    return;
+  }
+
+  // checkbox pravidlá
+  const rulesOk = document.getElementById("wlRulesOk");
+  if(rulesOk && !rulesOk.checked){
+    alert("Musíš potvrdiť, že si čítal pravidlá.");
+    return;
+  }
+
+  const payload = {
+    Meno: (data.Meno || "").trim(),
+    Vek: Number(data.Vek || 0),
+    RPRoky: Number(data.RPRoky || 0),
+    FiveMHodiny: Number(data.FiveMHodiny || 0),
+    Skusenosti: (data.Skusenosti || "").trim(),
+    Preco: (data.Preco || "").trim()
+  };
 
   try{
     const r = await fetch("/api/whitelist",{
@@ -676,40 +683,29 @@ if(rulesOk && !rulesOk.checked){
       credentials:"include",
       body:JSON.stringify(payload)
     });
+
     const res = await r.json();
 
-if(res.success){
-  alert("Odoslané");
-  e.target.reset();
-  document.getElementById("wlRulesOk").checked = false;
-  document.getElementById("c1").textContent = "0/1000 (min 50)";
-  document.getElementById("c2").textContent = "0/1000 (min 50)";
-  document.getElementById("c1").className = "wl-count bad";
-  document.getElementById("c2").className = "wl-count bad";
+    if(res.success){
+      alert("Odoslané");
+      e.target.reset();
 
-  // reset checkbox pravidlá
-  const rulesOk = document.getElementById("wlRulesOk");
-  if(rulesOk) rulesOk.checked = false;
+      // reset checkbox + počítadlá
+      if(rulesOk) rulesOk.checked = false;
 
-  // reset počítadlá znakov
-  const c1 = document.getElementById("c1");
-  const c2 = document.getElementById("c2");
+      const c1 = document.getElementById("c1");
+      const c2 = document.getElementById("c2");
+      if(c1){ c1.textContent = "0/1000 (min 50)"; c1.className = "wl-count bad"; }
+      if(c2){ c2.textContent = "0/1000 (min 50)"; c2.className = "wl-count bad"; }
 
-  if(c1){
-    c1.textContent = "0/1000 (min 50)";
-    c1.className = "wl-count bad";
+    } else {
+      alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
+    }
+  } catch {
+    alert("Chyba pripojenia na server");
   }
-  if(c2){
-    c2.textContent = "0/1000 (min 50)";
-    c2.className = "wl-count bad";
-  }
-
-} else {
-  alert("Chyba: " + (res.error || "Nepodarilo sa odoslať"));
-} } catch {
-  alert("Chyba pripojenia na server");
-}
 });
+
 /* ---------- ADMIN ---------- */
 let ADMIN_WIRED = false;
 function wireAdminToolsOnce(){
@@ -988,6 +984,10 @@ function autoResizeTA(el){
   el.addEventListener("input", resize);
   resize();
 }
+document.addEventListener("DOMContentLoaded", ()=>{
+  refreshAuthUI();
+  showTab(new URLSearchParams(location.search).get("tab") || "home");
+});
 </script>
 
 </body>
