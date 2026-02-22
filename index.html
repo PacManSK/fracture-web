@@ -63,6 +63,29 @@ footer{background:#111;text-align:center;padding:20px;border-top:2px solid #222;
 .badge.rejected{border-color:#7a1b1b;background:#1a0808;}
 .small-muted{color:#aaa;font-size:12px;}
 
+/* STATUS COLORS (admin cards) */
+.status.pending{background:#7c5a00;color:#fff;}
+.status.approved{background:#16a34a;color:#fff;}
+.status.rejected{background:#dc2626;color:#fff;}
+
+/* quick action buttons in header */
+.wl-actions{display:flex;gap:8px;align-items:center;}
+.wl-actions button{
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid #333;
+  background:#1a1a1a;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.wl-actions button.ok{background:#16a34a;border-color:#16a34a;}
+.wl-actions button.no{background:#dc2626;border-color:#dc2626;}
+.wl-actions button:disabled{opacity:.6;cursor:not-allowed;}
+
+/* fade after action */
+.wl-card.fading{opacity:.45;transform:scale(.995);transition:opacity .18s ease, transform .18s ease;}
+
 /* RULES ACCORDION */
 .rules-meta{color:#aaa;font-size:13px;margin-bottom:12px;}
 .rules-acc{margin-top:14px;}
@@ -792,47 +815,72 @@ function applyAdminView(){
 
     const avatar = req.avatarUrl || req.defaultAvatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
 
-    card.innerHTML = `
-      <div class="wl-header">
-        <div class="wl-user">
-          <img class="wl-avatar" src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-          <div>
-            <div class="wl-name">${escapeHtml(req.Meno || "-")}</div>
-            <div class="wl-sub">Discord: ${escapeHtml(req.Discord || "-")}</div>
-          </div>
-        </div>
-        <div class="status">${escapeHtml(req.status || "pending")}</div>
+   const st = (req.status || "pending").toLowerCase();
+
+card.innerHTML = `
+  <div class="wl-header">
+    <div class="wl-user">
+      <img class="wl-avatar" src="${escapeHtml(avatar)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+      <div>
+        <div class="wl-name">${escapeHtml(req.Meno || "-")}</div>
+        <div class="wl-sub">Discord: ${escapeHtml(req.Discord || "-")}</div>
       </div>
+    </div>
 
-      <div class="wl-body">
-        <div class="qa-q">Věk:</div>
-        <div class="qa-a">${escapeHtml(req.Vek || "-")}</div>
+    <div class="wl-actions">
+      <div class="status ${escapeHtml(st)}">${escapeHtml(st)}</div>
+      <button class="ok" type="button" data-act="approve" title="Schváliť">✔</button>
+      <button class="no" type="button" data-act="reject" title="Zamietnuť">✖</button>
+    </div>
+  </div>
 
-        <div class="qa-q">Discord ID:</div>
-        <div class="qa-a">${escapeHtml(req.DiscordId || "-")}</div>
+  <div class="wl-body">
+    <div class="qa-q">Věk:</div>
+    <div class="qa-a">${escapeHtml(req.Vek || "-")}</div>
 
-        <div class="qa-q">Zkušenosti s RP:</div>
-        <div class="qa-a">${escapeHtml(req.Skusenosti || "")}</div>
+    <div class="qa-q">Discord ID:</div>
+    <div class="qa-a">${escapeHtml(req.DiscordId || "-")}</div>
 
-        <div class="qa-q">Proč se chce připojit:</div>
-        <div class="qa-a">${escapeHtml(req.Preco || "")}</div>
+    <div class="qa-q">Koľko rokov RP:</div>
+    <div class="qa-a">${escapeHtml(req.RPRoky ?? "-")}</div>
 
-        <div style="margin-top:14px;display:flex;gap:10px;">
-          <button class="ok" type="button" data-act="approve">Schváliť</button>
-          <button class="no" type="button" data-act="reject">Zamietnuť</button>
-        </div>
-      </div>
-    `;
+    <div class="qa-q">Koľko hodín vo FiveM:</div>
+    <div class="qa-a">${escapeHtml(req.FiveMHodiny ?? "-")}</div>
 
-    card.addEventListener("click",(e)=>{
-      const t = e.target;
-      if(t && t.tagName === "BUTTON"){
-        const act = t.getAttribute("data-act");
-        adminAction(req.__idx, act);
-        return;
-      }
-      card.classList.toggle("open");
-    });
+    <div class="qa-q">Zkušenosti s RP:</div>
+    <div class="qa-a">${escapeHtml(req.Skusenosti || "")}</div>
+
+    <div class="qa-q">Proč se chce připojit:</div>
+    <div class="qa-a">${escapeHtml(req.Preco || "")}</div>
+
+    <div style="margin-top:14px;display:flex;gap:10px;">
+      <button class="ok" type="button" data-act="approve">Schváliť</button>
+      <button class="no" type="button" data-act="reject">Zamietnuť</button>
+    </div>
+  </div>
+`;
+
+   card.addEventListener("click", async (e)=>{
+  const t = e.target;
+
+  // button action (header aj vnútri body)
+  if(t && t.tagName === "BUTTON"){
+    const act = t.getAttribute("data-act");
+    if(!act) return;
+
+    // UI: disable + fade
+    card.classList.add("fading");
+    card.querySelectorAll("button[data-act]").forEach(b=>b.disabled = true);
+
+    await adminAction(req.__idx, act);
+
+    // refresh už volá adminAction -> loadRequests(true)
+    return;
+  }
+
+  // klik mimo buttonu = toggle
+  card.classList.toggle("open");
+});
 
     box.appendChild(card);
   });
@@ -851,9 +899,8 @@ async function adminAction(index, act){
   } catch {
     alert("Chyba pripojenia na server");
   }
-  loadRequests(true);
+  await loadRequests(true);
 }
-
 /* ---------- RULES ACCORDION ---------- */
 function rulesOpenAll(){
   const box = document.getElementById("rulesAcc");
