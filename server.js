@@ -34,7 +34,9 @@ console.log('[INDEX_PATH exists?]', fs.existsSync(INDEX_PATH));
 /* ============================= */
 const DISCORD_CLIENT_ID = String(process.env.DISCORD_CLIENT_ID || '').trim();
 const DISCORD_CLIENT_SECRET = String(process.env.DISCORD_CLIENT_SECRET || '').trim();
-const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '').replace(/[\r\n]/g, '').trim();
+const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
+  .replace(/[\r\n]/g, '')
+  .trim();
 
 const DISCORD_WEBHOOK_URL = String(process.env.DISCORD_WEBHOOK_URL || '').trim();
 
@@ -74,7 +76,8 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: true, // Render HTTPS
+    // v produkcii (Render) bude secure, lokálne nie (inak sa session rozbije na http)
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
@@ -95,7 +98,9 @@ app.get('/', (req, res) => {
 // Debug: ukáže, či server fakt vidí index a z akého priečinka servuje
 app.get('/__debug', (req, res) => {
   res.type('text/plain').send(
-    `PUBLIC_DIR=${PUBLIC_DIR}\nINDEX_PATH=${INDEX_PATH}\nINDEX_EXISTS=${fs.existsSync(INDEX_PATH)}\n`
+    `PUBLIC_DIR=${PUBLIC_DIR}\nINDEX_PATH=${INDEX_PATH}\nINDEX_EXISTS=${fs.existsSync(INDEX_PATH)}\n` +
+    `DISCORD_CLIENT_ID_SET=${!!DISCORD_CLIENT_ID}\nDISCORD_CLIENT_SECRET_SET=${!!DISCORD_CLIENT_SECRET}\nDISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || '(empty)'}\n` +
+    `NODE_ENV=${process.env.NODE_ENV || '(empty)'}\n`
   );
 });
 
@@ -147,6 +152,11 @@ async function sendDiscordWebhook(payload) {
 /* ============================= */
 const discordEnvOk = !!(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_CALLBACK_URL);
 
+console.log("[DISCORD ENV OK?]", discordEnvOk);
+if (!discordEnvOk) {
+  console.log("⚠️ Discord OAuth is DISABLED (missing ENV).");
+}
+
 if (discordEnvOk) {
   passport.use(new DiscordStrategy(
     {
@@ -170,8 +180,6 @@ if (discordEnvOk) {
       return done(null, profile);
     }
   ));
-} else {
-  console.log("⚠️ Discord OAuth is DISABLED (missing ENV).");
 }
 
 /* ============================= */
@@ -188,14 +196,37 @@ app.get('/auth/discord', (req, res, next) => {
   next();
 }, passport.authenticate('discord'));
 
-app.get('/auth/discord/callback',
-  passport.authenticate('discord', { failureRedirect: '/?tab=admin' }),
-  (req, res) => {
-    const tab = req.session?.afterLoginTab || 'admin';
-    req.session.afterLoginTab = null;
-    res.redirect(`/?tab=${tab}`);
+/**
+ * ✅ FINAL DEBUG CALLBACK
+ * Vypíše presnú odpoveď Discordu do Render logov:
+ * RAW: {"error":"invalid_client"} / {"error":"redirect_uri_mismatch"} / {"error":"invalid_grant"} ...
+ */
+app.get("/auth/discord/callback", (req, res, next) => {
+  if (!discordEnvOk) {
+    return res.status(500).send("Discord OAuth nie je nastavený.");
   }
-);
+
+  passport.authenticate("discord", (err, user, info) => {
+    if (err) {
+      console.error("DISCORD OAUTH ERROR:", err);
+      console.error("RAW:", err.oauthError?.data || err.data || info || err);
+      return res.status(500).send("OAuth error - check logs");
+    }
+
+    if (!user) {
+      console.error("NO USER. INFO:", info);
+      return res.redirect("/?tab=admin");
+    }
+
+    req.logIn(user, (e) => {
+      if (e) return next(e);
+
+      const tab = req.session?.afterLoginTab || 'admin';
+      req.session.afterLoginTab = null;
+      return res.redirect(`/?tab=${tab}`);
+    });
+  })(req, res, next);
+});
 
 app.get('/auth/me', (req, res) => {
   const loggedIn = !!req.user;
@@ -247,10 +278,10 @@ app.post('/api/whitelist', async (req, res) => {
 
   const { Meno, Vek, RPRoky, FiveMHodiny, Skusenosti, Preco } = req.body;
 
+  if (!Meno || !Vek || RPRoky === undefined || FiveMHodiny === undefined || !Skusenosti || !Preco) {
+    return res.json({ success: false, error: 'Nevyplnené polia!' });
+  }
 
- if (!Meno || !Vek || RPRoky === undefined || FiveMHodiny === undefined || !Skusenosti || !Preco) {
-  return res.json({ success: false, error: 'Nevyplnené polia!' });
-}
   const wl = readWL();
 
   const discordUserId = String(req.user.id);
@@ -314,20 +345,32 @@ app.get('/api/whitelist', (req, res) => {
   res.json(readWL());
 });
 
-/* approve/reject: iba admin, podľa ID */
+/**
+ * approve/reject: iba admin
+ * ✅ FIX: prijme buď {id, action} alebo {index, action} (aby sedelo aj s tvojím aktuálnym frontendom)
+ */
 app.post('/api/whitelist/action', async (req, res) => {
   if (!isAdminUser(req)) {
     return res.status(403).json({ success: false, error: 'Admin prístup má iba vybraný účet.' });
   }
 
-  const { id, action } = req.body;
-  if (!id || (action !== 'approve' && action !== 'reject')) {
-    return res.status(400).json({ success: false, error: 'Zlé dáta (id/action).' });
+  const { id, index, action } = req.body;
+  if (action !== 'approve' && action !== 'reject') {
+    return res.status(400).json({ success: false, error: 'Zlé dáta (action).' });
   }
 
   const wl = readWL();
-  const idx = wl.findIndex(x => String(x.id) === String(id));
-  if (idx === -1) {
+
+  let idx = -1;
+
+  if (id) {
+    idx = wl.findIndex(x => String(x.id) === String(id));
+  } else if (Number.isInteger(index)) {
+    // index prichádza z frontendu
+    idx = index;
+  }
+
+  if (idx < 0 || idx >= wl.length) {
     return res.status(404).json({ success: false, error: 'Neexistujúca žiadosť' });
   }
 
