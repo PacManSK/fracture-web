@@ -9,6 +9,43 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:Arial;background:#0d0d0d;color:#fff;}
 
+/* HERO BG */
+body{
+  background:
+    radial-gradient(1200px 600px at 70% -10%, rgba(255,75,92,.18), transparent 60%),
+    radial-gradient(900px 500px at 10% 10%, rgba(88,101,242,.14), transparent 55%),
+    linear-gradient(180deg,#0b0b0b,#060606);
+}
+
+.card, .wl-card, nav a, .discord-btn, button{
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+}
+.card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+  border-color:#2a2a2a;
+}
+nav a:hover, .discord-btn:hover, button:hover{
+  transform: translateY(-1px);
+}
+
+/* soft noise (optional) */
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+header{
+  border-bottom:1px solid #1f1f1f;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
+.header-text h1{
+  text-shadow:0 0 24px rgba(255,75,92,.25);
+}
+
 /* HEADER */
 header{position:relative;background:linear-gradient(90deg,#1a1a1a,#111);text-align:center;padding:30px;}
 .logo{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:80px;}
@@ -224,13 +261,32 @@ textarea.wl-ta{
     <a data-tab="admin">Admin</a>
   </div>
 </nav>
-
-<section id="home">
-  <div class="card">
-    <h2>O serveri</h2>
+<div class="card">
+  <h2>O serveri</h2>
+  <div class="underline"></div>
+  <div style="color:#cfcfcf; line-height:1.6;">
     Fracture RP je realistický RP server.
   </div>
-</section>
+
+</div>
+<div class="wl-grid" style="margin-top:18px;">
+  <div class="card" style="margin:0;">
+    <h3 style="color:#ff4b5c;margin-bottom:8px;">🚓 Realistické RP</h3>
+    <div style="color:#cfcfcf;line-height:1.55;">Dôraz na príbeh, interakcie a kvalitné scény. Žiadny chaos, iba štýl.</div>
+  </div>
+  <div class="card" style="margin:0;">
+    <h3 style="color:#ff4b5c;margin-bottom:8px;">🛠️ Aktívny A-Team</h3>
+    <div style="color:#cfcfcf;line-height:1.55;">Rýchle riešenie ticketov, jasné pravidlá a férový prístup.</div>
+  </div>
+  <div class="card" style="margin:0;">
+    <h3 style="color:#ff4b5c;margin-bottom:8px;">💎 Ekonomika & obsah</h3>
+    <div style="color:#cfcfcf;line-height:1.55;">Joby, ilegál, frakcie, biznisy a progres bez pay-to-win.</div>
+  </div>
+  <div class="card" style="margin:0;">
+    <h3 style="color:#ff4b5c;margin-bottom:8px;">🎙️ Community</h3>
+    <div style="color:#cfcfcf;line-height:1.55;">Chill komunita, eventy a dlhodobé príbehy.</div>
+  </div>
+</div>
 
 <section id="rules">
   <div class="card">
