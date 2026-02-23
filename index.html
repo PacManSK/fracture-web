@@ -403,24 +403,28 @@ body::after{
     transparent 70%);
   pointer-events:none;
   z-index:-1;
-}
+  }
 .discord-icon{
   display:flex;
   align-items:center;
   justify-content:center;
-  width:46px;
-  height:46px;
-  border-radius:12px;
-  background: rgba(88,101,242,.15);
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background: linear-gradient(135deg, rgba(88,101,242,.15), rgba(88,101,242,.05));
   color:#5865F2;
   transition: all .25s ease;
+  box-shadow: 0 8px 25px rgba(88,101,242,.25);
 }
 
 .discord-icon:hover{
   background:#5865F2;
   color:white;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(88,101,242,.5);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(88,101,242,.55);
+}
+.discord-icon{
+  margin-right:12px;
 }
 </style>
 </head>
