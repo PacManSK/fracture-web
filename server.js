@@ -261,8 +261,9 @@ app.get('/auth/logout', (req, res) => {
 /* ============================= */
 /* WHITELIST SYSTEM */
 /* ============================= */
-const wlFile = path.join(PUBLIC_DIR, 'whitelist.json');
-
+const wlFile = process.env.WL_FILE
+  ? String(process.env.WL_FILE)
+  : '/data/whitelist.json';
 function readWL() {
   if (!fs.existsSync(wlFile)) return [];
   try {
@@ -376,7 +377,14 @@ app.post('/api/whitelist/action', async (req, res) => {
   if (idx < 0 || idx >= wl.length) {
     return res.status(404).json({ success: false, error: 'Neexistujúca žiadosť' });
   }
-
+  // 🔒 LOCK: ak už nie je pending, nedá sa zmeniť
+  const currentStatus = String(wl[idx].status || 'pending').toLowerCase();
+  if (currentStatus !== 'pending') {
+    return res.status(409).json({
+      success: false,
+      error: `Táto žiadosť už bola rozhodnutá (${currentStatus}). Zmeniť sa to nedá.`
+    });
+  }
   wl[idx].status = (action === 'approve') ? 'approved' : 'rejected';
   wl[idx].updatedAt = new Date().toISOString();
   writeWL(wl);
