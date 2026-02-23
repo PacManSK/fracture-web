@@ -310,7 +310,11 @@ header{
 header{
   padding:70px 20px 60px;     /* viac výšky */
 }
-
+.header-text h1{
+  text-shadow:
+    0 0 25px rgba(255,75,92,.7),
+    0 0 60px rgba(255,75,92,.4);
+}
 header::before{
   background:
     linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.88)),
@@ -323,6 +327,9 @@ header::after{
     radial-gradient(800px 420px at 70% 0%, rgba(255,75,92,.22), transparent 60%),
     radial-gradient(700px 380px at 10% 20%, rgba(88,101,242,.16), transparent 60%);
 }
+header{
+  box-shadow: 0 40px 80px rgba(0,0,0,.55);
+}
 .logo{
   width:64px;                 /* z 80 -> 64 */
   opacity:.92;
@@ -333,6 +340,35 @@ header::after{
   border:1px solid rgba(255,255,255,.06);
   backdrop-filter: blur(10px);
   box-shadow: 0 18px 55px rgba(0,0,0,.5);
+}
+.card{
+  transition: all .25s ease;
+}
+.card:hover{
+  transform: translateY(-6px);
+  border-color: rgba(255,75,92,.4);
+  box-shadow: 0 25px 60px rgba(0,0,0,.7);
+}
+.section-box{
+  background: rgba(15,15,15,.75);
+  border:1px solid rgba(255,75,92,.15);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 25px 60px rgba(0,0,0,.6),
+    inset 0 0 40px rgba(255,75,92,.04);
+}
+body::after{
+  content:"";
+  position:fixed;
+  bottom:-200px;
+  left:0;
+  right:0;
+  height:500px;
+  background: radial-gradient(circle at center,
+    rgba(255,75,92,.15),
+    transparent 70%);
+  pointer-events:none;
+  z-index:-1;
 }
 </style>
 </head>

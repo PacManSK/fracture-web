@@ -274,9 +274,12 @@ function readWL() {
 }
 
 function writeWL(data) {
+  try {
+    const dir = path.dirname(wlFile);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  } catch {}
   fs.writeFileSync(wlFile, JSON.stringify(data, null, 2));
 }
-
 /* WL submit: iba prihlásený */
 app.post('/api/whitelist', async (req, res) => {
   if (!req.user) {
