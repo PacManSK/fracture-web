@@ -17,6 +17,16 @@ body{
     linear-gradient(180deg,#0b0b0b,#060606);
 }
 
+section{
+  max-width:1000px;
+  margin:60px auto 40px;   /* ✅ posunie nižšie */
+  padding:30px 20px;       /* viac vzduchu */
+  display:none;
+}
+
+
+
+
 .card, .wl-card, nav a, .discord-btn, button{
   transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
 }
@@ -262,31 +272,34 @@ textarea.wl-ta{
   </div>
 </nav>
 <div class="card">
-  <h2>O serveri</h2>
-  <div class="underline"></div>
-  <div style="color:#cfcfcf; line-height:1.6;">
+  <section id="home">
+  <div class="card">
+    <h2>O serveri</h2>
     Fracture RP je realistický RP server.
   </div>
 
-</div>
-<div class="wl-grid" style="margin-top:18px;">
-  <div class="card" style="margin:0;">
-    <h3 style="color:#ff4b5c;margin-bottom:8px;">🚓 Realistické RP</h3>
-    <div style="color:#cfcfcf;line-height:1.55;">Dôraz na príbeh, interakcie a kvalitné scény. Žiadny chaos, iba štýl.</div>
+  <div class="wl-grid" style="margin-top:18px;">
+    <div class="card" style="margin:0;">
+      <h3 style="color:#ff4b5c;margin-bottom:8px;">🚓 Realistické RP</h3>
+      <div style="color:#cfcfcf;line-height:1.55;">Dôraz na príbeh, interakcie a kvalitné scény. Žiadny chaos, iba štýl.</div>
+    </div>
+
+    <div class="card" style="margin:0;">
+      <h3 style="color:#ff4b5c;margin-bottom:8px;">🛠️ Aktívny A-Team</h3>
+      <div style="color:#cfcfcf;line-height:1.55;">Rýchle riešenie ticketov, jasné pravidlá a férový prístup.</div>
+    </div>
+
+    <div class="card" style="margin:0;">
+      <h3 style="color:#ff4b5c;margin-bottom:8px;">💎 Ekonomika & obsah</h3>
+      <div style="color:#cfcfcf;line-height:1.55;">Joby, ilegál, frakcie, biznisy a progres bez pay-to-win.</div>
+    </div>
+
+    <div class="card" style="margin:0;">
+      <h3 style="color:#ff4b5c;margin-bottom:8px;">🎙️ Community</h3>
+      <div style="color:#cfcfcf;line-height:1.55;">Chill komunita, eventy a dlhodobé príbehy.</div>
+    </div>
   </div>
-  <div class="card" style="margin:0;">
-    <h3 style="color:#ff4b5c;margin-bottom:8px;">🛠️ Aktívny A-Team</h3>
-    <div style="color:#cfcfcf;line-height:1.55;">Rýchle riešenie ticketov, jasné pravidlá a férový prístup.</div>
-  </div>
-  <div class="card" style="margin:0;">
-    <h3 style="color:#ff4b5c;margin-bottom:8px;">💎 Ekonomika & obsah</h3>
-    <div style="color:#cfcfcf;line-height:1.55;">Joby, ilegál, frakcie, biznisy a progres bez pay-to-win.</div>
-  </div>
-  <div class="card" style="margin:0;">
-    <h3 style="color:#ff4b5c;margin-bottom:8px;">🎙️ Community</h3>
-    <div style="color:#cfcfcf;line-height:1.55;">Chill komunita, eventy a dlhodobé príbehy.</div>
-  </div>
-</div>
+</section>
 
 <section id="rules">
   <div class="card">
