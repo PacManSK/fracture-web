@@ -1,4 +1,4 @@
-// server.js (FINAL – Fly/Render ready + Discord OAuth + WL + Admin + Webhooks)
+// server.js (FINAL – Fly/Render ready + Discord OAuth + WL + Admin + Webhooks + DM Bot)
 
 const express = require('express');
 const fs = require('fs');
@@ -39,6 +39,11 @@ const DISCORD_CALLBACK_URL = String(process.env.DISCORD_CALLBACK_URL || '')
   .trim();
 
 const DISCORD_WEBHOOK_URL = String(process.env.DISCORD_WEBHOOK_URL || '').trim();
+
+// ✅ Bot token pre DM (nové)
+const DISCORD_BOT_TOKEN = String(process.env.DISCORD_BOT_TOKEN || '').trim();
+const DISCORD_DM_ON_DECISION =
+  String(process.env.DISCORD_DM_ON_DECISION || 'true').toLowerCase() === 'true';
 
 const BRAND_LOGO_URL = String(
   process.env.BRAND_LOGO_URL || 'https://fracture-web.fly.dev/logo.png'
@@ -99,6 +104,7 @@ app.get('/__debug', (req, res) => {
   res.type('text/plain').send(
     `PUBLIC_DIR=${PUBLIC_DIR}\nINDEX_PATH=${INDEX_PATH}\nINDEX_EXISTS=${fs.existsSync(INDEX_PATH)}\n` +
     `DISCORD_CLIENT_ID_SET=${!!DISCORD_CLIENT_ID}\nDISCORD_CLIENT_SECRET_SET=${!!DISCORD_CLIENT_SECRET}\nDISCORD_CALLBACK_URL=${DISCORD_CALLBACK_URL || '(empty)'}\n` +
+    `DISCORD_BOT_TOKEN_SET=${!!DISCORD_BOT_TOKEN}\nDM_ON_DECISION=${DISCORD_DM_ON_DECISION}\n` +
     `NODE_ENV=${process.env.NODE_ENV || '(empty)'}\n`
   );
 });
@@ -141,8 +147,48 @@ async function sendDiscordWebhook(payload) {
       console.log("Webhook error:", r.status, text);
     }
   } catch (e) {
-    console.log("Webhook exception:", e);
+    console.log("Webhook exception:", e?.message || e);
   }
+}
+
+/* ============================= */
+/* DISCORD BOT DM (NEW) */
+/* ============================= */
+async function discordApi(apiPath, options = {}) {
+  if (!DISCORD_BOT_TOKEN) throw new Error("Missing DISCORD_BOT_TOKEN");
+
+  const r = await fetchFn(`https://discord.com/api/v10${apiPath}`, {
+    ...options,
+    headers: {
+      "Authorization": `Bot ${DISCORD_BOT_TOKEN}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
+
+  const text = await r.text().catch(() => "");
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch {}
+
+  if (!r.ok) {
+    const msg = json?.message || text || `HTTP ${r.status}`;
+    throw new Error(`Discord API ${r.status}: ${msg}`);
+  }
+  return json;
+}
+
+async function sendDiscordDM(userId, content) {
+  // open/create DM channel
+  const dm = await discordApi(`/users/@me/channels`, {
+    method: "POST",
+    body: JSON.stringify({ recipient_id: String(userId) })
+  });
+
+  // send message
+  await discordApi(`/channels/${dm.id}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ content })
+  });
 }
 
 /* ============================= */
@@ -204,13 +250,10 @@ app.get('/auth/discord', (req, res, next) => {
 }, passport.authenticate('discord'));
 
 /**
- * Debug callback – nechávame, lebo je to užitočné pri problémoch.
- * Ak nechceš debug, môžeme to neskôr zjednodušiť.
+ * Debug callback – užitočné pri chybách (redirect mismatch, invalid_client, rate limit, ...)
  */
 app.get("/auth/discord/callback", (req, res, next) => {
-  if (!discordEnvOk) {
-    return res.status(500).send("Discord OAuth nie je nastavený.");
-  }
+  if (!discordEnvOk) return res.status(500).send("Discord OAuth nie je nastavený.");
 
   passport.authenticate("discord", (err, user, info) => {
     if (err) {
@@ -236,7 +279,7 @@ app.get("/auth/discord/callback", (req, res, next) => {
 
 app.get('/auth/me', (req, res) => {
   const loggedIn = !!req.user;
-  res.json({
+  return res.json({
     loggedIn,
     isAdmin: loggedIn && isAdminUser(req),
     user: loggedIn ? {
@@ -261,9 +304,11 @@ app.get('/auth/logout', (req, res) => {
 /* ============================= */
 /* WHITELIST SYSTEM */
 /* ============================= */
+// Fly: /data (volume). Render: môžeš dať WL_FILE na disk alebo na /tmp
 const wlFile = process.env.WL_FILE
   ? String(process.env.WL_FILE)
   : '/data/whitelist.json';
+
 function readWL() {
   if (!fs.existsSync(wlFile)) return [];
   try {
@@ -280,6 +325,7 @@ function writeWL(data) {
   } catch {}
   fs.writeFileSync(wlFile, JSON.stringify(data, null, 2));
 }
+
 /* WL submit: iba prihlásený */
 app.post('/api/whitelist', async (req, res) => {
   if (!req.user) {
@@ -295,8 +341,9 @@ app.post('/api/whitelist', async (req, res) => {
   const wl = readWL();
 
   const discordUserId = String(req.user.id);
+
   const alreadyPending = wl.find(x =>
-    String(x.DiscordId) === discordUserId && String(x.status) === 'pending'
+    String(x.DiscordId) === discordUserId && String(x.status).toLowerCase() === 'pending'
   );
   if (alreadyPending) {
     return res.status(409).json({ success: false, error: 'Už máš odoslanú žiadosť (pending).' });
@@ -380,6 +427,7 @@ app.post('/api/whitelist/action', async (req, res) => {
   if (idx < 0 || idx >= wl.length) {
     return res.status(404).json({ success: false, error: 'Neexistujúca žiadosť' });
   }
+
   // 🔒 LOCK: ak už nie je pending, nedá sa zmeniť
   const currentStatus = String(wl[idx].status || 'pending').toLowerCase();
   if (currentStatus !== 'pending') {
@@ -388,12 +436,14 @@ app.post('/api/whitelist/action', async (req, res) => {
       error: `Táto žiadosť už bola rozhodnutá (${currentStatus}). Zmeniť sa to nedá.`
     });
   }
+
   wl[idx].status = (action === 'approve') ? 'approved' : 'rejected';
   wl[idx].updatedAt = new Date().toISOString();
   writeWL(wl);
 
-  // ✅ webhook: výsledok (approve/reject)
   const reqItem = wl[idx];
+
+  // ✅ webhook: výsledok (approve/reject)
   const actionLabel = action === 'approve' ? '🟢 Schválené' : '🔴 Zamietnuté';
   const color = action === 'approve' ? 0x2ECC71 : 0xE74C3C;
 
@@ -414,6 +464,17 @@ app.post('/api/whitelist/action', async (req, res) => {
       timestamp: new Date().toISOString(),
     }]
   });
+
+  // ✅ DM user po rozhodnutí (ak máš bot token)
+  if (DISCORD_DM_ON_DECISION && DISCORD_BOT_TOKEN) {
+    const ok = action === 'approve';
+    const msg = ok
+      ? `✅ Tvoja whitelist žiadosť na **Fracture Roleplay** bola **SCHVÁLENÁ**.\nVidíme sa v Los Santos! 🔥`
+      : `❌ Tvoja whitelist žiadosť na **Fracture Roleplay** bola **ZAMIETNUTÁ**.\nAk chceš, skús to neskôr znova alebo si otvor ticket.`;
+
+    sendDiscordDM(reqItem.DiscordId, msg)
+      .catch(e => console.log("DM failed:", e.message));
+  }
 
   return res.json({ success: true });
 });
