@@ -475,12 +475,12 @@ body::after{
     </a>
   </div>
 
-  <div class="nav-center">
-    <a class="active">Domov</a>
-    <a>Pravidlá</a>
-    <a>Whitelist</a>
-    <a>Admin</a>
-  </div>
+<div class="nav-center">
+  <a class="active" data-tab="home">Domov</a>
+  <a data-tab="rules">Pravidlá</a>
+  <a data-tab="whitelist">Whitelist</a>
+  <a data-tab="admin">Admin</a>
+</div>
 </nav>
 <div class="card">
   <section id="home">
@@ -853,6 +853,9 @@ function escapeHtml(v){
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+function showTab(id){
+  if(!id) id = "home"; // ✅ fallback, aby sa to nikdy nezaseklo
 }
 
 function showTab(id){
